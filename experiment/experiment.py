@@ -1,0 +1,295 @@
+# -*- coding: utf-8 -*-
+
+"""
+Configuration environment for experiments.
+
+This module introduces a framework for configuring experiments. It is based on the jupyter configuration
+framework (traitlets and application).
+
+.. code-block:: python
+
+    from experiment import Experiment
+    from traitlets import Float
+
+
+    class Main(Experiment):
+
+        lr = Float(0.1, config=True, help="Learning rate of training")
+
+        def run(self):
+            <Run the experiment>
+
+    if __name__ == "__main__":
+        main = Main()
+        main.initialize()
+        main.start()
+
+"""
+
+from copy import deepcopy
+import errno
+import logging
+import os
+from pathlib import Path
+import sys
+import time
+
+from ipython_genutils.text import wrap_paragraphs
+from traitlets.config.application import Application, catch_config_error
+from traitlets.config.loader import ConfigFileNotFound
+from traitlets import Bool, Enum, Instance, Unicode
+
+from .utils import createResultFolder, getJOBID, setupLogging
+
+try:
+    raw_input
+except NameError:
+    # py3
+    raw_input = input
+
+
+def ensure_dir_exists(path, mode=0o777):
+    """ensure that a directory exists
+
+    If it doesn't exist, try to create it, protecting against a race condition
+    if another process is doing the same.
+
+    The default permissions are determined by the current umask.
+    """
+    try:
+        os.makedirs(path, mode=mode)
+    except OSError as e:
+        if e.errno != errno.EEXIST:
+            raise
+    if not os.path.isdir(path):
+        raise IOError("%r exists but is not a directory" % path)
+
+
+class Experiment(Application):
+    name = Unicode(Path(sys.argv[0]).stem)
+
+    log_level = Enum((0, 10, 20, 30, 40, 50, 'DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL'),
+                    default_value=logging.INFO,
+                    help="Set the log level by value or name.").tag(config=True)
+
+    #
+    # Results folder
+    #
+    strict_git = Bool(True, config=True, help="Require commit of all changes.")
+    results_path = Unicode(help="Base path for experiment results.")
+
+    def _results_path_default(self):
+
+        results_base_path = os.path.join(os.environ["RESULTS_BASE"], self.name)
+        results_path = createResultFolder(
+            base_path=results_base_path,
+            strict_git=self.strict_git
+        )
+        return results_path
+
+    #
+    # Configuration loading and saving.
+    #
+    generate_config = Bool(True, config=True, help="Generate config file.")
+    config_file_name = Unicode(config=True, help="Specify a config file to save.")
+
+    def _config_file_name_default(self):
+        return u'config.py'
+
+    config_file = Unicode(config=True, help="Full path of a config file to load.")
+
+    #
+    # Logging
+    #
+    mlflow_server = Unicode("http://dccxl007.pok.ibm.com:5000", config=True, help="default mlflow server.")
+
+    def load_config_file(self, suppress_errors=True):
+        """Load the config file.
+
+        By default, errors in loading config are handled, and a warning
+        printed on screen. For testing, the suppress_errors option is set
+        to False, so errors will make tests fail.
+        """
+        if self.config_file:
+            path, config_file_name = os.path.split(self.config_file)
+        else:
+            return
+
+        try:
+            super(Experiment, self).load_config_file(
+                config_file_name,
+                path=path
+            )
+        except ConfigFileNotFound:
+            self.log.debug("Config file not found, skipping: %s", config_file_name)
+        except Exception:
+            # For testing purposes.
+            if not suppress_errors:
+                raise
+            self.log.warn("Error loading config file: %s" %
+                          config_file_name, exc_info=True)
+
+    def class_config_section(self, cls):
+        """Get the config class config section"""
+
+        def c(s):
+            """return a commented, wrapped block."""
+            s = '\n\n'.join(wrap_paragraphs(s, 78))
+
+            return '## ' + s.replace('\n', '\n#  ')
+
+        # section header
+        breaker = '#' + '-' * 78
+        parent_classes = ','.join(p.__name__ for p in cls.__bases__)
+        s = "# %s(%s) configuration" % (cls.__name__, parent_classes)
+        lines = [breaker, s, breaker, '']
+        # get the description trait
+        desc = cls.class_traits().get('description')
+        if desc:
+            desc = desc.default_value
+        if not desc:
+            # no description from trait, use __doc__
+            desc = getattr(cls, '__doc__', '')
+        if desc:
+            lines.append(c(desc))
+            lines.append('')
+
+        for name, trait in sorted(cls.class_own_traits(config=True).items()):
+            lines.append(c(trait.help))
+            lines.append('c.%s.%s = %s' % (cls.__name__, name, repr(trait.get(self))))
+            lines.append('')
+        return '\n'.join(lines)
+
+    def generate_config_file(self):
+        """generate default config file from Configurables"""
+        lines = ["# Configuration file for %s." % self.name]
+        lines.append('')
+        for cls in self._classes_in_config_sample():
+            lines.append(self.class_config_section(cls))
+        return '\n'.join(lines)
+
+    def exit(self, exit_status=0):
+        self.log.debug("Exiting application: %s" % self.name)
+        sys.exit(exit_status)
+
+    def write_config(self):
+        """Write our config to a .py config file"""
+
+        config_file = os.path.join(self.results_path, Path(self.config_file_name).stem + '.py')
+
+        config_text = self.generate_config_file()
+        if isinstance(config_text, bytes):
+            config_text = config_text.decode('utf8')
+        print("Writing default config to: %s" % config_file)
+        ensure_dir_exists(os.path.abspath(os.path.dirname(config_file)), 0o700)
+        with open(config_file, mode='w') as f:
+            f.write(config_text)
+
+    def create_aliases(self):
+        """Flatten all class traits using aliasses."""
+
+        cls = self.__class__
+        for k, trait in sorted(cls.class_own_traits(config=True).items()):
+            self.aliases[trait.name] = ("%s.%s" % (cls.__name__, trait.name))
+
+    @catch_config_error
+    def initialize(self, argv=None):
+        # don't hook up crash handler before parsing command-line
+        if argv is None:
+            argv = sys.argv[1:]
+
+        self.create_aliases()
+
+        self.parse_command_line(argv)
+        cl_config = deepcopy(self.config)
+        self.load_config_file()
+        # enforce cl-opts override configfile opts:
+        self.update_config(cl_config)
+
+    def setup_logging(self):
+        """Setup logging of experiment."""
+
+        setupLogging(self.results_path, log_level=self.log_level)
+
+    def start(self):
+        """Start the whole thing"""
+
+        self.setup_logging()
+
+        if self.generate_config:
+            self.write_config()
+
+        #
+        # Setup mlflow
+        #
+        import mlflow
+        mlflow.set_tracking_uri(self.mlflow_server)
+        experiment_id = mlflow.set_experiment(self.name)
+
+        #
+        # Run the script under mlflow
+        #
+        with mlflow.start_run(experiment_id=experiment_id):
+            #
+            # Log the run parametres to mlflow.
+            #
+            mlflow.log_param("results_path", self.results_path)
+
+            cls = self.__class__
+            for k, trait in sorted(cls.class_traits(config=True).items()):
+                mlflow.log_param(trait.name, repr(trait.get(self)))
+
+            self.run()
+
+    def run(self):
+        """The logic of the experiment.
+
+        Should be implemented by the subclass.
+        """
+
+        raise NotImplementedError("The `run` method should be implemented by the subclass.")
+
+
+class VisdomExperiment(Experiment):
+    #
+    # Logging
+    #
+    visdom_server = Unicode("http://dccxl007.pok.ibm.com", config=True, help="default visdom server.")
+    visdom_env = Unicode(help="Name of Visdom environment where the experiment is logged.")
+
+    def setup_logging(self):
+        """Setup logging of experiment."""
+
+        import visdom
+        self.add_traits(vis=Instance(name="vis", klass=visdom.Visdom, help="Visdom object."))
+
+        from .visdom import setup_visdom
+        from .visdom import monitor_gpu
+        from .visdom import write_conf
+        from .visdom import VisdomLogHandler
+
+        results_path = Path(self.results_path)
+
+        #
+        # Setup visdom callbacks
+        #
+        self.vis = setup_visdom(
+            server=self.visdom_server,
+            log_to_filename=results_path / "visdom.log",
+        )
+        self.visdom_env = "{}_{}-{}".format(
+            self.name.replace("_", "-"),
+            getJOBID(),
+            time.strftime('%y%m%d%H%M%S')
+        )
+
+        #
+        # Setup logging and monitoring.
+        #
+        visdom_log_handler = VisdomLogHandler(self.visdom_env, title="Logging")
+
+        config_text = self.generate_config_file()
+        write_conf(self.visdom_env, text=config_text)
+        monitor_gpu(self.visdom_env)
+        setupLogging(results_path, log_level=self.log_level, custom_handlers=(visdom_log_handler,))
+        logging.info("Created results path: {}".format(results_path))
