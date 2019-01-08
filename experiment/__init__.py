@@ -8,3 +8,6 @@ __version__ = '0.1.0'
 
 
 from .experiment import Experiment
+from .experiment import MLflowExperiment
+from .experiment import TensorboardXExperiment
+from .experiment import VisdomExperiment

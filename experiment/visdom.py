@@ -1,21 +1,17 @@
-from functools import partial
 import logging
 import numpy as np
 import os
 import pprint
 import threading
-from typing import Any, Union, List, Tuple, Dict
+from typing import List, Tuple, Union
 import visdom
-
-from .metrics import Metric
 
 _visdom = None
 _save_by_default = None
-_environments = set()
 
 
 def setup_visdom(
-    server: str=None,
+    server: str='',
     log_to_filename: str=None,
     save_by_default: bool=True) -> visdom.Visdom:
     """Setup the communication with the visdom server.
@@ -32,7 +28,7 @@ def setup_visdom(
     #
     global _visdom
 
-    if server is None:
+    if server is None or not server:
         server = os.environ.get("VISDOM_SERVER_URL", 'http://localhost')
 
     username = os.environ.get("VISDOM_USERNAME", None)
@@ -385,67 +381,3 @@ def create_parameters_windows(
     params_view_win.register_parameters(parameters)
 
     return params_control_win, params_view_win
-
-
-class MetricsWindow(Window):
-    """Visdom window for viewing metrics.
-
-    Args:
-        env (string): The visdom environment to log to.
-        xlabel (string): xlabel of plot.
-        ylabel (string): ylabel of plot.
-        title (string): Title of the plot.
-        showlegend (bool): Whether to show a legend.
-    """
-
-    def _metric_updated(self, metric: Metric, metric_line: Line, new_value: float):
-        metric_line.append(
-            x=metric.step,
-            y=new_value
-        )
-
-    def register_metrics(self, metrics: Union[List, Tuple]):
-        """Register metrics for viewing in the window.
-
-        Args:
-            metrics (list): List of Metric objects to view.
-        """
-
-        self.metrics = metrics
-        self.metrics_lines = []
-        for metric in self.metrics:
-            metric_line = Line(metric.name, window=self)
-            metric._callbacks.append(
-                partial(self._metric_updated, metric=metric, metric_line=metric_line)
-            )
-            self.metrics_lines.append(metric_line)
-
-
-def create_metrics_window(
-    metrics: Union[List, Tuple],
-    env: str,
-    xlabel: str="iteration",
-    ylabel: str="value",
-    title: str="Metrics",
-    showlegend: bool=False):
-    """Create a window for viewing metrics.
-
-    Args:
-        metrics (list like): List of metrics to present in this window.
-        env (string): The visdom environment to log to.
-        xlabel (string): xlabel of plot.
-        ylabel (string): ylabel of plot.
-        title (string): Title of the plot.
-        showlegend (bool): Whether to show a legend.
-    """
-    #
-    # Create the properties control window
-    #
-    metrics_win = MetricsWindow(
-        env, xlabel=xlabel, ylabel=ylabel, title=title, showlegend=showlegend
-    )
-    metrics_win.register_metrics(metrics)
-
-    return metrics_win
-
-

@@ -24,6 +24,7 @@ framework (traitlets and application).
         main.initialize()
         main.start()
 
+For more examples see the `examples` folder.
 """
 
 from copy import deepcopy
@@ -40,12 +41,6 @@ from traitlets.config.loader import ConfigFileNotFound
 from traitlets import Bool, Dict, Enum, Instance, List, Unicode
 
 from .utils import createResultFolder, getJOBID, setupLogging
-
-try:
-    raw_input
-except NameError:
-    # py3
-    raw_input = input
 
 
 def ensure_dir_exists(path, mode=0o777):
@@ -99,11 +94,6 @@ class Experiment(Application):
         return u'config.py'
 
     config_file = Unicode(config=True, help="Full path of a config file to load.")
-
-    #
-    # Logging
-    #
-    mlflow_server = Unicode("http://dccxl007.pok.ibm.com:5000", config=True, help="default mlflow server.")
 
     #
     # Logic
@@ -230,6 +220,43 @@ class Experiment(Application):
         if self.generate_config:
             self.write_config()
 
+        self.run()
+
+    def run(self):
+        """The logic of the experiment.
+
+        Should be implemented by the subclass.
+        """
+
+        raise NotImplementedError("The `run` method should be implemented by the subclass.")
+
+
+class MLflowExperiment(Experiment):
+    """A singleton experiment with support for `mlflow` logging.
+
+    Note:
+        This object will setup a connection with the `mlflow` server.
+        To successfully do so it is recommended to setup the following
+        environment variable:
+
+        * MLFLOW_SERVER - URL:PORT of mlflow server.
+    """
+
+    mlflow_server = Unicode(config=True, help="default mlflow server.")
+
+    def _mlflow_server_default(self):
+        mlflow_server = os.environ.get("MLFLOW_SERVER", 'http://localhost:5000')
+
+        return mlflow_server
+
+    def start(self):
+        """Start the whole thing"""
+
+        self._setup_logging()
+
+        if self.generate_config:
+            self.write_config()
+
         #
         # Setup mlflow
         #
@@ -252,22 +279,40 @@ class Experiment(Application):
 
             self.run()
 
-    def run(self):
-        """The logic of the experiment.
-
-        Should be implemented by the subclass.
-        """
-
-        raise NotImplementedError("The `run` method should be implemented by the subclass.")
-
 
 class VisdomExperiment(Experiment):
-    """A singleton experiment with support of `Visdom` logging."""
+    """A singleton experiment with support of `Visdom` logging.
 
-    #
-    # Logging
-    #
-    visdom_server = Unicode("http://dccxl007.pok.ibm.com", config=True, help="default visdom server.")
+    Note:
+        This object will setup a connection with the `visdom` server.
+        To successfully do so it is recommended to setup the following
+        environment variables:
+
+        * VISDOM_SERVER_URL - URL of visdom server.
+        * VISDOM_USERNAME - User name to use for logging to the visdom server (optional).
+        * VISDOM_PASSWORD - Password to use for loffing to the visdom server (optional).
+    """
+
+    visdom_server = Unicode(config=True, help="default visdom server.")
+
+    vis = Instance(name="vis", klass=object, help="Visdom client object.")
+
+    def _vis_default(self):
+
+        from .visdom import setup_visdom
+
+        results_path = Path(self.results_path)
+
+        #
+        # Setup visdom callbacks
+        #
+        vis = setup_visdom(
+            server=self.visdom_server,
+            log_to_filename=results_path / "visdom.log",
+        )
+
+        return vis
+
     visdom_env = Unicode(help="Name of Visdom environment where the experiment is logged.")
 
     def _visdom_env_default(self):
@@ -283,23 +328,14 @@ class VisdomExperiment(Experiment):
     def _setup_logging(self):
         """Setup logging of experiment."""
 
-        import visdom
-        self.add_traits(vis=Instance(name="vis", klass=visdom.Visdom, help="Visdom object."))
-
-        from .visdom import setup_visdom
         from .visdom import monitor_gpu
         from .visdom import write_conf
         from .visdom import VisdomLogHandler
 
-        results_path = Path(self.results_path)
-
         #
-        # Setup visdom callbacks
+        # The following is just for initiating the connection with the visdom server.
         #
-        self.vis = setup_visdom(
-            server=self.visdom_server,
-            log_to_filename=results_path / "visdom.log",
-        )
+        vis = self.vis
 
         #
         # Monitor GPU.
@@ -317,35 +353,37 @@ class VisdomExperiment(Experiment):
 
 
 class TensorboardXExperiment(Experiment):
+    """A singleton experiment with support of `TensorBoard` logging.
+
+    Note:
+        This object requires `tensorBoardX` to produce log summaries.
+        The log summaries are stored in the path set by `self.tb_log_dir`.
+        By default a unique folder will be created by script_name/jobid_date/
+        To successfully do so it is recommended to setup the following
+        environment variable:
+
+        * TENSORBOARD_BASE_DIR - Base path for storing log summaries (optional).
+          Defaults to `/tmp/tensorboard`.
+    """
 
     tb_log_dir = Unicode(help="Path where to store the tensorboard logs.")
 
     def _tb_log_dir_default(self):
-        try:
-            STORAGE_BASE = os.environ['STORAGE_BASE']
-        except Exception:
-            raise Exception(
-                'Failed to find find STORAGE_BASE environment variable'
-            )
-
-        TENSORBOARD_HOME = os.path.join(STORAGE_BASE, 'tensorboard')
+        tb_base_dir = os.environ.get("TENSORBOARD_BASE_DIR", '/tmp/tensorboard')
 
         jobid = getJOBID()
         timestamp = time.strftime('%y%m%d_%H%M%S')
 
-        import __main__
         tb_log_dir = os.path.join(
-            TENSORBOARD_HOME,
-            os.path.split(__main__.__file__)[1],
+            tb_base_dir,
+            self.name,
             "{}_{}".format(jobid, timestamp)
         )
 
         return tb_log_dir
 
-    from tensorboardX import SummaryWriter
-
-    summary_writer = Instance(name="summary_writer", klass=SummaryWriter,
-                              help="TensorboardX SummaryWriter object.")
+    summary_writer = Instance(name="summary_writer", klass=object,
+                          help="TensorboardX SummaryWriter object.")
 
     def _summary_writer_default(self):
 
