@@ -14,10 +14,10 @@ def setupLogging(
     log_path=None,
     file_name="script_log",
     log_level=logging.INFO,
-    postfix='',
+    logging_format="%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s",
     custom_handlers=()):
-    """Initialize a logger. Single process version.
-    Logs both to file and stdout."""
+    """Initialize the logger. Single process version.
+    Logs both to file and stderr."""
 
     #
     # Get the log level
@@ -28,21 +28,9 @@ def setupLogging(
             raise ValueError('Invalid log level: %s' % log_level)
 
     #
-    # Setup the logger
+    # config console handler.
     #
-    logFormatter = logging.Formatter(
-        "%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s"
-    )
-
-    logger = logging.getLogger()
-    logger.setLevel(log_level)
-
-    #
-    # create console handler.
-    #
-    handler = logging.StreamHandler()
-    handler.setFormatter(logFormatter)
-    logger.addHandler(handler)
+    logging.basicConfig(level=log_level, format=logging_format)
 
     if log_path is None:
         return
@@ -58,8 +46,12 @@ def setupLogging(
     logging.info("Logging to: {}".format(log_file))
 
     #
-    # create error file handler and set level to error
+    # Log to file.
     #
+    logger = logging.getLogger()
+    logger.setLevel(log_level)
+    logFormatter = logging.Formatter(logging_format)
+
     handler = logging.FileHandler(log_file, "w", encoding=None, delay="true")
     handler.setFormatter(logFormatter)
     logger.addHandler(handler)

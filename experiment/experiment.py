@@ -37,7 +37,7 @@ import time
 from ipython_genutils.text import wrap_paragraphs
 from traitlets.config.application import Application, catch_config_error
 from traitlets.config.loader import ConfigFileNotFound
-from traitlets import Bool, Enum, Instance, Unicode
+from traitlets import Bool, Dict, Enum, Instance, List, Unicode
 
 from .utils import createResultFolder, getJOBID, setupLogging
 
@@ -66,16 +66,16 @@ def ensure_dir_exists(path, mode=0o777):
 
 
 class Experiment(Application):
+    """A singleton experiment with full configuration support."""
+
     name = Unicode(Path(sys.argv[0]).stem)
 
     log_level = Enum((0, 10, 20, 30, 40, 50, 'DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL'),
                     default_value=logging.INFO,
                     help="Set the log level by value or name.").tag(config=True)
 
-    #
-    # Results folder
-    #
     strict_git = Bool(True, config=True, help="Require commit of all changes.")
+
     results_path = Unicode(help="Base path for experiment results.")
 
     def _results_path_default(self):
@@ -86,6 +86,8 @@ class Experiment(Application):
             strict_git=self.strict_git
         )
         return results_path
+
+    custom_log_handlers = List(help="List of custom logging handlers.")
 
     #
     # Configuration loading and saving.
@@ -102,6 +104,11 @@ class Experiment(Application):
     # Logging
     #
     mlflow_server = Unicode("http://dccxl007.pok.ibm.com:5000", config=True, help="default mlflow server.")
+
+    #
+    # Logic
+    #
+    cache = Dict(help="Container for storing results of different parts of the experiment.")
 
     def load_config_file(self, suppress_errors=True):
         """Load the config file.
@@ -162,10 +169,12 @@ class Experiment(Application):
 
     def generate_config_file(self):
         """generate default config file from Configurables"""
+
         lines = ["# Configuration file for %s." % self.name]
         lines.append('')
         for cls in self._classes_in_config_sample():
             lines.append(self.class_config_section(cls))
+
         return '\n'.join(lines)
 
     def exit(self, exit_status=0):
@@ -206,15 +215,17 @@ class Experiment(Application):
         # enforce cl-opts override configfile opts:
         self.update_config(cl_config)
 
-    def setup_logging(self):
+    def _setup_logging(self):
         """Setup logging of experiment."""
 
-        setupLogging(self.results_path, log_level=self.log_level)
+        setupLogging(self.results_path, log_level=self.log_level, custom_handlers=self.custom_log_handlers)
+
+        logging.info("Created results path: {}".format(self.results_path))
 
     def start(self):
         """Start the whole thing"""
 
-        self.setup_logging()
+        self._setup_logging()
 
         if self.generate_config:
             self.write_config()
@@ -251,13 +262,25 @@ class Experiment(Application):
 
 
 class VisdomExperiment(Experiment):
+    """A singleton experiment with support of `Visdom` logging."""
+
     #
     # Logging
     #
     visdom_server = Unicode("http://dccxl007.pok.ibm.com", config=True, help="default visdom server.")
     visdom_env = Unicode(help="Name of Visdom environment where the experiment is logged.")
 
-    def setup_logging(self):
+    def _visdom_env_default(self):
+
+        visdom_env = "{}_{}-{}".format(
+            self.name.replace("_", "-"),
+            getJOBID(),
+            time.strftime('%y%m%d%H%M%S')
+        )
+
+        return visdom_env
+
+    def _setup_logging(self):
         """Setup logging of experiment."""
 
         import visdom
@@ -277,19 +300,78 @@ class VisdomExperiment(Experiment):
             server=self.visdom_server,
             log_to_filename=results_path / "visdom.log",
         )
-        self.visdom_env = "{}_{}-{}".format(
-            self.name.replace("_", "-"),
-            getJOBID(),
-            time.strftime('%y%m%d%H%M%S')
-        )
 
         #
-        # Setup logging and monitoring.
+        # Monitor GPU.
         #
-        visdom_log_handler = VisdomLogHandler(self.visdom_env, title="Logging")
+        monitor_gpu(self.visdom_env)
 
+        #
+        # Setup logging.
+        #
         config_text = self.generate_config_file()
         write_conf(self.visdom_env, text=config_text)
-        monitor_gpu(self.visdom_env)
-        setupLogging(results_path, log_level=self.log_level, custom_handlers=(visdom_log_handler,))
-        logging.info("Created results path: {}".format(results_path))
+        self.custom_log_handlers.append(VisdomLogHandler(self.visdom_env, title="Logging"))
+
+        super(VisdomExperiment, self)._setup_logging()
+
+
+class TensorboardXExperiment(Experiment):
+
+    tb_log_dir = Unicode(help="Path where to store the tensorboard logs.")
+
+    def _tb_log_dir_default(self):
+        try:
+            STORAGE_BASE = os.environ['STORAGE_BASE']
+        except Exception:
+            raise Exception(
+                'Failed to find find STORAGE_BASE environment variable'
+            )
+
+        TENSORBOARD_HOME = os.path.join(STORAGE_BASE, 'tensorboard')
+
+        jobid = getJOBID()
+        timestamp = time.strftime('%y%m%d_%H%M%S')
+
+        import __main__
+        tb_log_dir = os.path.join(
+            TENSORBOARD_HOME,
+            os.path.split(__main__.__file__)[1],
+            "{}_{}".format(jobid, timestamp)
+        )
+
+        return tb_log_dir
+
+    from tensorboardX import SummaryWriter
+
+    summary_writer = Instance(name="summary_writer", klass=SummaryWriter,
+                              help="TensorboardX SummaryWriter object.")
+
+    def _summary_writer_default(self):
+
+        from tensorboardX import SummaryWriter
+
+        summary_writer = SummaryWriter(log_dir=self.tb_log_dir)
+
+        return summary_writer
+
+    def _setup_logging(self):
+        """Setup logging of experiment."""
+
+        from .tensorboard_x import monitor_gpu
+        from .tensorboard_x import write_conf
+        from .tensorboard_x import TensorBoardXLogHandler
+
+        #
+        # Monitor GPU.
+        #
+        monitor_gpu(self.summary_writer)
+
+        #
+        # Setup logging.
+        #
+        config_text = self.generate_config_file()
+        write_conf(self.summary_writer, text=config_text)
+        self.custom_log_handlers.append(TensorBoardXLogHandler(self.summary_writer, title="Logging"))
+
+        super(TensorboardXExperiment, self)._setup_logging()
