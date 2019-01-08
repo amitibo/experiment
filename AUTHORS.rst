@@ -5,7 +5,7 @@ Credits
 Development Lead
 ----------------
 
-* Amit Aides <amiti.bo@gmail.com>
+* Amit Aides <amitaid@il.ibm.com>
 
 Contributors
 ------------

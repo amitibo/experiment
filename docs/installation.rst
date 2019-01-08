@@ -38,7 +38,7 @@ Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl  -OL https://github.com/amitibo/experiment/tarball/master
+    $ curl  -OL https://github.ibm.com/AMITAID/experiment/tarball/master
 
 Once you have a copy of the source, you can install it with:
 
@@ -47,5 +47,5 @@ Once you have a copy of the source, you can install it with:
     $ python setup.py install
 
 
-.. _Github repo: https://github.com/amitibo/experiment
-.. _tarball: https://github.com/amitibo/experiment/tarball/master
+.. _Github repo: https://github.ibm.com/AMITAID/experiment
+.. _tarball: https://github.ibm.com/AMITAID/experiment/tarball/master
