@@ -46,6 +46,25 @@ Once you have a copy of the source, you can install it with:
 
     $ python setup.py install
 
+To compile the documentation (should be executed from within a node with cuda drivers):
+
+.. code-block:: console
+
+    cd docs
+    make rst
+    make html
+    make pdf
+
+To view the documentation using a browser:
+
+.. code-block:: console
+
+    cd ../../
+    sphinx-serve -p 8080 -b experiment-docs
+
+Direct a browser to the *ip* of the ccc node (get be retrived by *ifconfig* command)
+and the port set by the *sphinx-serve* command (8080).
+
 
 .. _Github repo: https://github.ibm.com/AMITAID/experiment
 .. _tarball: https://github.ibm.com/AMITAID/experiment/tarball/master
