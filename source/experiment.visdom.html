@@ -1,0 +1,391 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>experiment.visdom module &#8212; Experiment 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-experiment.visdom">
+<span id="experiment-visdom-module"></span><h1>experiment.visdom module<a class="headerlink" href="#module-experiment.visdom" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="experiment.visdom.Line">
+<em class="property">class </em><code class="descclassname">experiment.visdom.</code><code class="descname">Line</code><span class="sig-paren">(</span><em>name: str</em>, <em>window: experiment.visdom.Window</em>, <em>opts: dict = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/experiment/visdom.html#Line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.visdom.Line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class that encapsulates the creation and use of line plots.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<em>str</em>) – Name of line (used in the legend). The name is also important
+when plotting multiple lines on the same plot.</li>
+<li><strong>window</strong> (<a class="reference internal" href="#experiment.visdom.Window" title="experiment.visdom.Window"><em>Window</em></a>) – Window object to plot the line to.</li>
+<li><strong>opts</strong> (<em>dict</em>) – Optional visdom <cite>opts</cite> parameters to apply to the line.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="experiment.visdom.Line.append">
+<code class="descname">append</code><span class="sig-paren">(</span><em>x: float</em>, <em>y: float</em>, <em>opts: dict = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/experiment/visdom.html#Line.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.visdom.Line.append" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="experiment.visdom.ParametersControlWindow">
+<em class="property">class </em><code class="descclassname">experiment.visdom.</code><code class="descname">ParametersControlWindow</code><span class="sig-paren">(</span><em>env</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>title=None</em>, <em>showlegend=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/experiment/visdom.html#ParametersControlWindow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.visdom.ParametersControlWindow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#experiment.visdom.Window" title="experiment.visdom.Window"><code class="xref py py-class docutils literal notranslate"><span class="pre">experiment.visdom.Window</span></code></a></p>
+<p>Visdom window for controlling parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>env</strong> (<em>string</em>) – The visdom environment to log to.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="experiment.visdom.ParametersControlWindow.register_parameters">
+<code class="descname">register_parameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/experiment/visdom.html#ParametersControlWindow.register_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.visdom.ParametersControlWindow.register_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register parameters for controlling in the window.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>parameters</strong> (<em>list</em>) – List of Parameters to control.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="experiment.visdom.ParametersViewWindow">
+<em class="property">class </em><code class="descclassname">experiment.visdom.</code><code class="descname">ParametersViewWindow</code><span class="sig-paren">(</span><em>env</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>title=None</em>, <em>showlegend=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/experiment/visdom.html#ParametersViewWindow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.visdom.ParametersViewWindow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#experiment.visdom.Window" title="experiment.visdom.Window"><code class="xref py py-class docutils literal notranslate"><span class="pre">experiment.visdom.Window</span></code></a></p>
+<p>Visdom window for viewing parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>env</strong> (<em>string</em>) – The visdom environment to log to.</li>
+<li><strong>xlabel</strong> (<em>string</em>) – xlabel of plot.</li>
+<li><strong>ylabel</strong> (<em>string</em>) – ylabel of plot.</li>
+<li><strong>title</strong> (<em>string</em>) – Title of the plot.</li>
+<li><strong>showlegend</strong> (<em>bool</em>) – Whether to show a legend.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="experiment.visdom.ParametersViewWindow.register_parameters">
+<code class="descname">register_parameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/experiment/visdom.html#ParametersViewWindow.register_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.visdom.ParametersViewWindow.register_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register parameters for viewing in the window.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>parameters</strong> (<em>list</em>) – List of Parameter objects to view.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="experiment.visdom.ParametersViewWindow.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>x: float</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/experiment/visdom.html#ParametersViewWindow.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.visdom.ParametersViewWindow.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the values of the parameters on the view.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> (<em>float</em>) – x value of graph.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="experiment.visdom.VisdomLogHandler">
+<em class="property">class </em><code class="descclassname">experiment.visdom.</code><code class="descname">VisdomLogHandler</code><span class="sig-paren">(</span><em>env</em>, <em>title='Logging'</em>, <em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/experiment/visdom.html#VisdomLogHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.visdom.VisdomLogHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">logging.Handler</span></code></p>
+<p>Logging handler that logs to a Visdom text window.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>env</strong> (<em>string</em>) – The visdom environment to log to.</li>
+<li><strong>title</strong> (<em>string</em>) – Title of the logger window</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="experiment.visdom.VisdomLogHandler.emit">
+<code class="descname">emit</code><span class="sig-paren">(</span><em>record</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/experiment/visdom.html#VisdomLogHandler.emit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.visdom.VisdomLogHandler.emit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do whatever it takes to actually log the specified logging record.</p>
+<p>This version is intended to be implemented by subclasses and so
+raises a NotImplementedError.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="experiment.visdom.Window">
+<em class="property">class </em><code class="descclassname">experiment.visdom.</code><code class="descname">Window</code><span class="sig-paren">(</span><em>env</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>title=None</em>, <em>showlegend=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/experiment/visdom.html#Window"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.visdom.Window" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for creating visdom windows.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>env</strong> (<em>string</em>) – The visdom environment to log to.</li>
+<li><strong>xlabel</strong> (<em>string</em>) – xlabel of plot.</li>
+<li><strong>ylabel</strong> (<em>string</em>) – ylabel of plot.</li>
+<li><strong>title</strong> (<em>string</em>) – Title of the plot.</li>
+<li><strong>showlegend</strong> (<em>bool</em>) – Whether to show a legend.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="experiment.visdom.Window.env">
+<code class="descname">env</code><a class="headerlink" href="#experiment.visdom.Window.env" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="experiment.visdom.Window.opts">
+<code class="descname">opts</code><a class="headerlink" href="#experiment.visdom.Window.opts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="experiment.visdom.Window.update_mode">
+<code class="descname">update_mode</code><a class="headerlink" href="#experiment.visdom.Window.update_mode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="experiment.visdom.Window.win">
+<code class="descname">win</code><a class="headerlink" href="#experiment.visdom.Window.win" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="experiment.visdom.create_parameters_windows">
+<code class="descclassname">experiment.visdom.</code><code class="descname">create_parameters_windows</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/experiment/visdom.html#create_parameters_windows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.visdom.create_parameters_windows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create control and view windows for parameters</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>env</strong> (<em>string</em>) – The visdom environment to log to.</li>
+<li><strong>xlabel</strong> (<em>string</em>) – xlabel of plot.</li>
+<li><strong>ylabel</strong> (<em>string</em>) – ylabel of plot.</li>
+<li><strong>title</strong> (<em>string</em>) – Title of the plot.</li>
+<li><strong>showlegend</strong> (<em>bool</em>) – Whether to show a legend.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="experiment.visdom.create_plot_window">
+<code class="descclassname">experiment.visdom.</code><code class="descname">create_plot_window</code><span class="sig-paren">(</span><em>vis</em>, <em>env</em>, <em>xlabel</em>, <em>ylabel</em>, <em>title</em>, <em>legend=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/experiment/visdom.html#create_plot_window"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.visdom.create_plot_window" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a plot window.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>vis</strong> (<em>object</em>) – The Visdom object.</li>
+<li><strong>env</strong> (<em>string</em>) – The visdom environment to log to.</li>
+<li><strong>xlabel</strong> (<em>string</em>) – xlabel of plot.</li>
+<li><strong>ylabel</strong> (<em>string</em>) – ylabel of plot.</li>
+<li><strong>title</strong> (<em>string</em>) – Title of the plot.</li>
+<li><strong>legend</strong> (<em>string</em>) – Legend of line.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Depracated. Use the new Window interface.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="experiment.visdom.monitor_gpu">
+<code class="descclassname">experiment.visdom.</code><code class="descname">monitor_gpu</code><span class="sig-paren">(</span><em>env: str</em>, <em>gpu_index: int = None</em>, <em>xtick_size: int = 100</em><span class="sig-paren">)</span> &#x2192; threading.Thread<a class="reference internal" href="../_modules/experiment/visdom.html#monitor_gpu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.visdom.monitor_gpu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Monitor the memory and utilization of a GPU.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>env</strong> (<em>str</em>) – The visdom environment to log to.</li>
+<li><strong>gpu_index</strong> (<em>int</em>) – The GPU to monitor.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="experiment.visdom.setup_visdom">
+<code class="descclassname">experiment.visdom.</code><code class="descname">setup_visdom</code><span class="sig-paren">(</span><em>server: str = ''</em>, <em>log_to_filename: str = None</em>, <em>save_by_default: bool = True</em><span class="sig-paren">)</span> &#x2192; visdom.Visdom<a class="reference internal" href="../_modules/experiment/visdom.html#setup_visdom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.visdom.setup_visdom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup the communication with the visdom server.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>server</strong> (<em>str</em>) – IP of visdom server.</li>
+<li><strong>log_to_filename</strong> (<em>str</em>) – If not None, a log of the plots will be saved to this path.  This log can be
+later replayed into visdom.</li>
+<li><strong>save_by_default</strong> (<em>bool</em>) – Automatically save the environment each update (Saved under ‘~/.visdom/&lt;ENV&gt;’</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="experiment.visdom.write_conf">
+<code class="descclassname">experiment.visdom.</code><code class="descname">write_conf</code><span class="sig-paren">(</span><em>env</em>, <em>args=None</em>, <em>text=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/experiment/visdom.html#write_conf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.visdom.write_conf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write configuration to the Visdom env.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>env</strong> (<em>string</em>) – The visdom environment to log to.</li>
+<li><strong>args</strong> (<em>Namespace</em><em>, </em><em>optional</em>) – The argument namespace returned by argparse.</li>
+<li><strong>text</strong> (<em>string</em><em>, </em><em>optional</em>) – Configuration as text block.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Experiment</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Experiment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">experiment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../history.html">History</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Amit Aides.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/source/experiment.visdom.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

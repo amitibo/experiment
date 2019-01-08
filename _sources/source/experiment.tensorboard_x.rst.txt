@@ -1,0 +1,7 @@
+experiment.tensorboard\_x module
+================================
+
+.. automodule:: experiment.tensorboard_x
+    :members:
+    :undoc-members:
+    :show-inheritance:
