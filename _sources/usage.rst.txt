@@ -150,13 +150,13 @@ Integration with visdom
 -----------------------
 
 visdom_ is a tool for live visualizations. ``experiment.VisdomExperiment`` simplifies the use of `visdom`
-together with the `experiment` package. When run, the scripts automatically connects to a `visdom` server
+together with the `experiment` package. When run, the script automatically connects to a `visdom` server
 (the ``VISDOM_SERVER_URL``, ``VISDOM_USERNAME``, and ``VISDOM_PASSWORD`` environment variables can be
 used to config the connection). A unique `visdom` ``environemnt`` is created per run (the name of the
 ``environment`` is set similarly to the results folder).  The script parameters and logs are automatically
 saved as ``text`` windows. A separate window is created for monitoring GPU use.
 The `experiment` package also includes ``experiment.visdom.Line`` and ``experiment.visdom.Window`` to help in
-using `visdom`.  It it also possible to use both `mlflow` and `visdom`. See
+using `visdom`.  It is also possible to use both `mlflow` and `visdom`. See
 ``examples/demo_mlflow_experiment.py`` for a demonstration of using `visdom` and `mlflow` with `experiment`.
 
 .. image:: images/visdom_logs.JPG
@@ -169,7 +169,11 @@ Integration with Tensorboard
 ----------------------------
 
 Tensorboard_ is another tool for live visualizations. ``experiment.TensorboardXExperiment`` integrates with
-`Tensorboard` through TensorboardX_.
+`Tensorboard` through TensorboardX_. When run, the script automatically creates a unique tensorboard logdir
+and instantiates a ``tensorboard.SummaryWriter`` object. The script parameters and logs are saved as text
+summaries. The GPU usage is also monitored using ``scalar`` summary.
+It it also possible to use both `mlflow` and `tensorboard`. See ``examples/demo_tensorboardx_experiment.py``
+for a demonstration of using `tensorboard` and `mlflow` with `experiment`.
 
 .. image:: images/tensorboard_logs.JPG
    :width: 600px
