@@ -24,6 +24,7 @@ It is based on the Traitlets_ package.
         The `experiment` package is still in beta state and the API might change.
 
 * Free software: MIT license
+
 .. * Documentation: https://pages.github.ibm.com/AMITAID/experiment/
 
 

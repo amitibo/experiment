@@ -8,10 +8,16 @@ Welcome to Experiment's documentation!
    readme
    installation
    usage
-   modules
+   examples
    contributing
    authors
    history
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Package Reference
+
+   experiment
 
 Indices and tables
 ==================
