@@ -5,24 +5,6 @@ Installation
 ============
 
 
-Stable release
---------------
-
-To install Experiment, run this command in your terminal:
-
-.. code-block:: console
-
-    $ pip install experiment
-
-This is the preferred method to install Experiment, as it will always install the most recent stable release.
-
-If you don't have `pip`_ installed, this `Python installation guide`_ can guide
-you through the process.
-
-.. _pip: https://pip.pypa.io
-.. _Python installation guide: http://docs.python-guide.org/en/latest/starting/installation/
-
-
 From sources
 ------------
 
@@ -50,17 +32,16 @@ To compile the documentation (should be executed from within a node with cuda dr
 
 .. code-block:: console
 
-    cd docs
-    make rst
-    make html
-    make pdf
+    $ cd docs
+    $ make rst
+    $ make html
 
 To view the documentation using a browser:
 
 .. code-block:: console
 
-    cd ../../
-    sphinx-serve -p 8080 -b experiment-docs
+    $ cd ../../
+    $ sphinx-serve -p 8080 -b experiment-docs
 
 Direct a browser to the *ip* of the ccc node (get be retrived by *ifconfig* command)
 and the port set by the *sphinx-serve* command (8080).

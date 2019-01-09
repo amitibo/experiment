@@ -75,7 +75,8 @@ class Experiment(Application):
 
     def _results_path_default(self):
 
-        results_base_path = os.path.join(os.environ["RESULTS_BASE"], self.name)
+        results_base_path = os.environ.get("RESULTS_BASE", "/tmp/results")
+        results_base_path = os.path.join(results_base_path, self.name)
         results_path = createResultFolder(
             base_path=results_base_path,
             strict_git=self.strict_git

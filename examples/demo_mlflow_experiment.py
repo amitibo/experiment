@@ -1,7 +1,11 @@
-from experiment import Experiment
+"""
+This demo shows how to use the `experiment` package to log both to `Tensorboard` and `mlflow`.
+"""
+from experiment import MLflowExperiment
 import logging
+import mlflow
+from traitlets import Enum, Float, Int
 import time
-from traitlets import Enum, Float, Int, Unicode
 
 try:
     from tqdm import trange
@@ -9,17 +13,12 @@ except ImportError:
     trange = range
 
 
-class Main(Experiment):
-    #
-    # Description of the experiment. Used in the help message.
-    #
-    description = Unicode("Basic experiment.")
-
+class Main(MLflowExperiment):
     #
     # Parameters of experiment
     #
     epochs = Int(100, config=True, help="Number of epochs")
-    lr = Float(0.1, config=True, help="Learning rate of training")
+    lr = Float(0.5, config=True, help="Learning rate of training")
     loss_type = Enum(("mse", "l1"), config=True, default_value="mse", help="Loss type.")
 
     def run(self):
@@ -30,6 +29,8 @@ class Main(Experiment):
 
         loss = 100
         for i in trange(self.epochs):
+            mlflow.log_metric("loss", loss)
+
             loss = loss * self.lr
             time.sleep(.5)
 
