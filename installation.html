@@ -35,16 +35,6 @@
             
   <div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="stable-release">
-<h2>Stable release<a class="headerlink" href="#stable-release" title="Permalink to this headline">¶</a></h2>
-<p>To install Experiment, run this command in your terminal:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> pip install experiment
-</pre></div>
-</div>
-<p>This is the preferred method to install Experiment, as it will always install the most recent stable release.</p>
-<p>If you don’t have <a class="reference external" href="https://pip.pypa.io">pip</a> installed, this <a class="reference external" href="http://docs.python-guide.org/en/latest/starting/installation/">Python installation guide</a> can guide
-you through the process.</p>
-</div>
 <div class="section" id="from-sources">
 <h2>From sources<a class="headerlink" href="#from-sources" title="Permalink to this headline">¶</a></h2>
 <p>The sources for Experiment can be downloaded from the <a class="reference external" href="https://github.ibm.com/AMITAID/experiment">Github repo</a>.</p>
@@ -60,6 +50,19 @@ you through the process.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> python setup.py install
 </pre></div>
 </div>
+<p>To compile the documentation (should be executed from within a node with cuda drivers):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> <span class="nb">cd</span> docs
+<span class="gp">$</span> make rst
+<span class="gp">$</span> make html
+</pre></div>
+</div>
+<p>To view the documentation using a browser:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> <span class="nb">cd</span> ../../
+<span class="gp">$</span> sphinx-serve -p <span class="m">8080</span> -b experiment-docs
+</pre></div>
+</div>
+<p>Direct a browser to the <em>ip</em> of the ccc node (get be retrived by <em>ifconfig</em> command)
+and the port set by the <em>sphinx-serve</em> command (8080).</p>
 </div>
 </div>
 
@@ -84,7 +87,6 @@ you through the process.</p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="readme.html">Experiment</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#stable-release">Stable release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#from-sources">From sources</a></li>
 </ul>
 </li>

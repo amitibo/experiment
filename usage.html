@@ -35,9 +35,160 @@
             
   <div class="section" id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
-<p>To use Experiment in a project:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">experiment</span>
+<div class="section" id="basic-usage">
+<h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h2>
+<p>The <cite>experiment</cite> package exposes the <cite>Application</cite> framework of <a class="reference external" href="https://traitlets.readthedocs.io/en/stable/index.html">Traitlets</a> and extends it with other utilities to
+ease writing experiments in python.</p>
+<p>The <cite>experiment</cite> package replaces the entry point of python script (typically a <code class="docutils literal notranslate"><span class="pre">def</span> <span class="pre">main(...):</span></code>) function with a
+subclass of the <code class="docutils literal notranslate"><span class="pre">experiment.Experiment</span></code> class. Here is the most basic way to use <cite>experiment</cite> in a project:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">experiment</span> <span class="k">import</span> <span class="n">Experiment</span>
+
+<span class="k">class</span> <span class="nc">Main</span><span class="p">(</span><span class="n">Experiment</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The entry point of the script is a class the inherits from</span>
+<span class="sd">    ``experiment.Experiment`` or from one of its subclasses.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">#</span>
+    <span class="c1"># Script arguments are exposed as Trailtes class members.</span>
+    <span class="c1">#</span>
+    <span class="n">epochs</span> <span class="o">=</span> <span class="n">Int</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of epochs&quot;</span><span class="p">)</span>
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The script code starts here. The user should overwrite the ``run()`` method.&quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span> <span class="o">=</span> <span class="n">Main</span><span class="p">()</span>
+    <span class="n">main</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+    <span class="n">main</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 </pre></div>
+</div>
+<p>The above code creates a unique results folder:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">RESULTS_BASE</span><span class="o">&gt;/</span><span class="n">demo_experiment</span><span class="o">/</span><span class="n">no_gitinfo</span><span class="o">/</span><span class="mi">254879</span><span class="o">/</span><span class="mi">190108</span><span class="n">_092800</span><span class="o">/</span>
+</pre></div>
+</div>
+<p>The first part of the path defaults to <code class="docutils literal notranslate"><span class="pre">/tmp/results/</span></code> and can be set using the <code class="docutils literal notranslate"><span class="pre">RESULTS_BASE</span></code> environment
+variable. Next is the name of the script, followed by git commit hash, job id (in case the scripts is run using
+a job queue system). The last part of the path is a time signature. This method ensures a unique results folder
+even if several instances of the scripts are scheduled (by the jobs system) to run at the same time.
+Four files are created automatically in this folder:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">cmdline.txt</span></code>: a copy of the command (including arguments) used for running the script.</li>
+<li><code class="docutils literal notranslate"><span class="pre">config.py</span></code>: a config file that can be use to repeat the same experiment.</li>
+<li><code class="docutils literal notranslate"><span class="pre">git_diff.txt</span></code>: the output of running <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">diff</span></code> in the base folder of the script.</li>
+<li><code class="docutils literal notranslate"><span class="pre">script_log</span></code>: a copy of the script logs (logs created through python <cite>logging</cite> mechanism).</li>
+</ul>
+<p>The user can access the results folder by the <code class="docutils literal notranslate"><span class="pre">self.results_path</span></code> member of the <code class="docutils literal notranslate"><span class="pre">experiment.Experiment</span></code>
+object.</p>
+<p>Here is an the <code class="docutils literal notranslate"><span class="pre">demo_experiment.py</span></code> example from the <code class="docutils literal notranslate"><span class="pre">examples</span></code> folder:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">experiment</span> <span class="k">import</span> <span class="n">Experiment</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">traitlets</span> <span class="k">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">Float</span><span class="p">,</span> <span class="n">Int</span><span class="p">,</span> <span class="n">Unicode</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="k">import</span> <span class="n">trange</span>
+
+<span class="k">class</span> <span class="nc">Main</span><span class="p">(</span><span class="n">Experiment</span><span class="p">):</span>
+    <span class="c1">#</span>
+    <span class="c1"># Description of the experiment. Used in the help message.</span>
+    <span class="c1">#</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="n">Unicode</span><span class="p">(</span><span class="s2">&quot;Basic experiment.&quot;</span><span class="p">)</span>
+
+    <span class="c1">#</span>
+    <span class="c1"># Parameters of experiment</span>
+    <span class="c1">#</span>
+    <span class="n">epochs</span> <span class="o">=</span> <span class="n">Int</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of epochs&quot;</span><span class="p">)</span>
+    <span class="n">lr</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Learning rate of training&quot;</span><span class="p">)</span>
+    <span class="n">loss_type</span> <span class="o">=</span> <span class="n">Enum</span><span class="p">((</span><span class="s2">&quot;mse&quot;</span><span class="p">,</span> <span class="s2">&quot;l1&quot;</span><span class="p">),</span> <span class="n">config</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="s2">&quot;mse&quot;</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Loss type.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Running the experiment&quot;&quot;&quot;</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting experiment&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using </span><span class="si">{}</span><span class="s2"> loss&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loss_type</span><span class="p">))</span>
+
+        <span class="n">loss</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">trange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">):</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">loss</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">lr</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="o">.</span><span class="mi">5</span><span class="p">)</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Experiment finished&quot;</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span> <span class="o">=</span> <span class="n">Main</span><span class="p">()</span>
+    <span class="n">main</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+    <span class="n">main</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The help of the script is automatically created from the help strings of the parameters:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python demo_experiment.py --help
+Basic experiment.
+
+Options
+-------
+
+Arguments that take values are actually convenience aliases to full
+Configurables, whose aliases are listed on the help line. For more information
+on full configurables, see &#39;--help-all&#39;.
+
+--log-level=&lt;Enum&gt; (Application.log_level)
+    Default: 30
+    Choices: (0, 10, 20, 30, 40, 50, &#39;DEBUG&#39;, &#39;INFO&#39;, &#39;WARN&#39;, &#39;ERROR&#39;, &#39;CRITICAL&#39;)
+    Set the log level by value or name.
+--epochs=&lt;Int&gt; (Main.epochs)
+    Default: 100
+    Number of epochs
+--loss_type=&lt;Enum&gt; (Main.loss_type)
+    Default: &#39;mse&#39;
+    Choices: (&#39;mse&#39;, &#39;l1&#39;)
+    Loss type.
+--lr=&lt;Float&gt; (Main.lr)
+    Default: 0.1
+    Learning rate of training
+
+To see all available configurables, use `--help-all`
+</pre></div>
+</div>
+<p>The user can set the script parameters from the command line:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python demo_experiment.py --lr 0.001 --epochs 40
+</pre></div>
+</div>
+<p>The user can also rerun a previous experiment by the automatically created <code class="docutils literal notranslate"><span class="pre">config.py</span></code> file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python demo_experiment.py --Main.config_file &lt;RESULTS FOLDER&gt;/config.py
+</pre></div>
+</div>
+</div>
+<div class="section" id="integration-with-mlflow">
+<h2>Integration with mlflow<a class="headerlink" href="#integration-with-mlflow" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://mlflow.org/">mlflow</a> is a platform for running machine learning algorithms. To use <cite>experiment</cite> with <cite>mlflow</cite> (currnetly
+only the  <a class="reference external" href="https://mlflow.org/docs/latest/tracking.html">Tracking</a> module of <cite>mlflow</cite> is supported) there is a need to replace <code class="docutils literal notranslate"><span class="pre">experiment.Experiment</span></code>
+with <code class="docutils literal notranslate"><span class="pre">experiment.MLflowExperiment</span></code>. This will automatically connect to a running <cite>mlflow</cite> server (the <cite>URL</cite>
+of the server can be set using the <code class="docutils literal notranslate"><span class="pre">MLFLOW_SERVER</span></code> environment variable). <cite>experiment</cite> will create a new
+<cite>mlflow</cite> experiment using the name of the script, and will log the script arguments as key-value parameters.
+See <code class="docutils literal notranslate"><span class="pre">examples/demo_mlflow_experiment.py</span></code> for a demonstration of using <cite>mlflow</cite> with <cite>experiment</cite>.</p>
+<a class="reference internal image-reference" href="_images/mlflow_logs.JPG"><img alt="example of mlflow logs" class="align-center" src="_images/mlflow_logs.JPG" style="width: 600px;" /></a>
+</div>
+<div class="section" id="integration-with-visdom">
+<h2>Integration with visdom<a class="headerlink" href="#integration-with-visdom" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://github.com/facebookresearch/visdom">visdom</a> is a tool for live visualizations. <code class="docutils literal notranslate"><span class="pre">experiment.VisdomExperiment</span></code> simplifies the use of <cite>visdom</cite>
+together with the <cite>experiment</cite> package. When run, the scripts automatically connects to a <cite>visdom</cite> server
+(the <code class="docutils literal notranslate"><span class="pre">VISDOM_SERVER_URL</span></code>, <code class="docutils literal notranslate"><span class="pre">VISDOM_USERNAME</span></code>, and <code class="docutils literal notranslate"><span class="pre">VISDOM_PASSWORD</span></code> environment variables can be
+used to config the connection). A unique <cite>visdom</cite> <code class="docutils literal notranslate"><span class="pre">environemnt</span></code> is created per run (the name of the
+<code class="docutils literal notranslate"><span class="pre">environment</span></code> is set similarly to the results folder).  The script parameters and logs are automatically
+saved as <code class="docutils literal notranslate"><span class="pre">text</span></code> windows. A separate window is created for monitoring GPU use.
+The <cite>experiment</cite> package also includes <code class="docutils literal notranslate"><span class="pre">experiment.visdom.Line</span></code> and <code class="docutils literal notranslate"><span class="pre">experiment.visdom.Window</span></code> to help in
+using <cite>visdom</cite>.  It it also possible to use both <cite>mlflow</cite> and <cite>visdom</cite>. See
+<code class="docutils literal notranslate"><span class="pre">examples/demo_mlflow_experiment.py</span></code> for a demonstration of using <cite>visdom</cite> and <cite>mlflow</cite> with <cite>experiment</cite>.</p>
+<a class="reference internal image-reference" href="_images/visdom_logs.JPG"><img alt="example of visdom logs" class="align-center" src="_images/visdom_logs.JPG" style="width: 600px;" /></a>
+</div>
+<div class="section" id="integration-with-tensorboard">
+<h2>Integration with Tensorboard<a class="headerlink" href="#integration-with-tensorboard" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://www.tensorflow.org/guide/summaries_and_tensorboard">Tensorboard</a> is another tool for live visualizations. <code class="docutils literal notranslate"><span class="pre">experiment.TensorboardXExperiment</span></code> integrates with
+<cite>Tensorboard</cite> through <a class="reference external" href="https://github.com/lanpa/tensorboardX">TensorboardX</a>.</p>
+<a class="reference internal image-reference" href="_images/tensorboard_logs.JPG"><img alt="example of tensorboard logs" class="align-center" src="_images/tensorboard_logs.JPG" style="width: 600px;" /></a>
+<a class="reference internal image-reference" href="_images/tensorboard_config.JPG"><img alt="example of tensorboard configuration logs" class="align-center" src="_images/tensorboard_config.JPG" style="width: 600px;" /></a>
 </div>
 </div>
 
@@ -62,7 +213,13 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="readme.html">Experiment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#integration-with-mlflow">Integration with mlflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#integration-with-visdom">Integration with visdom</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#integration-with-tensorboard">Integration with Tensorboard</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">experiment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
