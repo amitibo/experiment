@@ -14,7 +14,7 @@ You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/amitibo/experiment
+    $ git clone git@github.ibm.com:AMITAID/experiment.git
 
 Or download the `tarball`_:
 
