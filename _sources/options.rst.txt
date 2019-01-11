@@ -1,0 +1,75 @@
+Test
+====
+
+
+
+
+.. configtrait:: Application.log_datefmt
+
+    The date format used by logging formatters for %(asctime)s
+
+    :trait type: Unicode
+    :default: ``'%Y-%m-%d %H:%M:%S'``
+
+.. configtrait:: Application.log_format
+
+    The Logging format template
+
+    :trait type: Unicode
+    :default: ``'[%(name)s]%(highlevel)s %(message)s'``
+
+.. configtrait:: Application.log_level
+
+    Set the log level by value or name.
+
+    :options: ``0``, ``10``, ``20``, ``30``, ``40``, ``50``, ``'DEBUG'``, ``'INFO'``, ``'WARN'``, ``'ERROR'``, ``'CRITICAL'``
+    :default: ``30``
+    :CLI option: ``--log-level``
+
+.. configtrait:: Experiment.config_file
+
+    Full path of a config file to load.
+
+    :trait type: Unicode
+
+.. configtrait:: Experiment.config_file_name
+
+    Specify a config file to save.
+
+    :trait type: Unicode
+
+.. configtrait:: Experiment.generate_config
+
+    Generate config file.
+
+    :trait type: Bool
+    :default: ``True``
+
+.. configtrait:: Experiment.log_datefmt
+
+    The date format used by logging formatters for %(asctime)s
+
+    :trait type: Unicode
+    :default: ``'%Y-%m-%d %H:%M:%S'``
+
+.. configtrait:: Experiment.log_format
+
+    The Logging format template
+
+    :trait type: Unicode
+    :default: ``'[%(name)s]%(highlevel)s %(message)s'``
+
+.. configtrait:: Experiment.log_level
+
+    Set the log level by value or name.
+
+    :options: ``0``, ``10``, ``20``, ``30``, ``40``, ``50``, ``'DEBUG'``, ``'INFO'``, ``'WARN'``, ``'ERROR'``, ``'CRITICAL'``
+    :default: ``20``
+
+.. configtrait:: Experiment.strict_git
+
+    Require commit of all changes.
+
+    :trait type: Bool
+    :default: ``True``
+
