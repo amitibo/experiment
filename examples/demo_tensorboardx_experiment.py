@@ -15,7 +15,9 @@ except ImportError:
 
 
 class Main(MLflowExperiment, TensorboardXExperiment):
-
+    #
+    # Description of the experiment. Used in the help message.
+    #
     description = Unicode("Demonstration of using Tensorboard and MLflow logging.")
 
     #

@@ -6,7 +6,7 @@ from experiment import VisdomExperiment
 from experiment.visdom import Line, Window
 import logging
 import mlflow
-from traitlets import Enum, Float, Int
+from traitlets import Enum, Float, Int, Unicode
 import time
 
 try:
@@ -16,6 +16,11 @@ except ImportError:
 
 
 class Main(MLflowExperiment, VisdomExperiment):
+    #
+    # Description of the experiment. Used in the help message.
+    #
+    description = Unicode("Demonstration of using Visdom and MLflow logging.")
+
     #
     # Parameters of experiment
     #

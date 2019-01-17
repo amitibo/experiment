@@ -15,6 +15,11 @@ except ImportError:
 
 class Main(MLflowExperiment):
     #
+    # Description of the experiment. Used in the help message.
+    #
+    description = Unicode("Demonstration of using MLflow logging.")
+
+    #
     # Parameters of experiment
     #
     epochs = Int(100, config=True, help="Number of epochs")

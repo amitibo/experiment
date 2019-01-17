@@ -159,7 +159,9 @@ def createResultFolder(
     use_timestamp: bool=True,
     use_jobid: bool=True,
     postfix: str=None,
-    strict_git: bool=False):
+    strict_git: bool=False,
+    time_struct: time.struct_time=None
+):
     """Create Results Folder
 
     This function creates a *unique* hierarchical results folder name. It is
@@ -176,7 +178,8 @@ def createResultFolder(
         use_timestamp (optional[bool]): Whether to add a timestamp to the path.
         use_jobid (optional[bool]): Whether to add a the jobid to the path.
         postfix (optional[str]): Last subfolder.
-        strict_git (optional[bool]):
+        strict_git (optional[bool]): Assert that all code changes are committed.
+        time_struct (optional[time.struct_time]): Use a specific time for timestamp.
 
     Returns:
         Full path of results folder.
@@ -193,7 +196,9 @@ def createResultFolder(
         # Get the jobid.
         #
         jobid = getJOBID()
-        timestamp = time.strftime('%y%m%d_%H%M%S')
+        if time_struct is None:
+            time_struct = time.localtime()
+        timestamp = time.strftime('%y%m%d_%H%M%S', time_struct)
 
         if base_path is None:
             try:

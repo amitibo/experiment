@@ -83,11 +83,17 @@ class Experiment(Application):
         results_base_path = os.path.join(results_base_path, self.name)
         results_path = createResultFolder(
             base_path=results_base_path,
-            strict_git=self.strict_git
+            strict_git=self.strict_git,
+            time_struct=self.exp_time
         )
         return results_path
 
     custom_log_handlers = List(help="List of custom logging handlers.")
+
+    exp_time = Instance(time.struct_time, help="Start time of the experiment.")
+
+    def _exp_time_default(self):
+        return time.localtime()
 
     #
     # Configuration loading and saving.
@@ -334,7 +340,7 @@ class VisdomExperiment(Experiment):
         visdom_env = "{}_{}-{}".format(
             self.name.replace("_", "-"),
             getJOBID(),
-            time.strftime('%y%m%d%H%M%S')
+            time.strftime('%y%m%d-%H%M%S', self.exp_time)
         )
 
         return visdom_env
@@ -388,7 +394,7 @@ class TensorboardXExperiment(Experiment):
         tb_base_dir = os.environ.get("TENSORBOARD_BASE_DIR", '/tmp/tensorboard')
 
         jobid = getJOBID()
-        timestamp = time.strftime('%y%m%d_%H%M%S')
+        timestamp = time.strftime('%y%m%d_%H%M%S', self.exp_time)
 
         tb_log_dir = os.path.join(
             tb_base_dir,
