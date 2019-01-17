@@ -28,13 +28,23 @@ class TensorBoardXLogHandler(logging.Handler):
 
         self.summary_writer = summary_writer
         self.title = title
+        self.global_step = 0
+        self.accomulated_entries = ""
 
     def emit(self, record):
         log_entry = self.format(record)
 
+        #
+        # There seems to be a bug in writing new lines:
+        # https://stackoverflow.com/questions/45016458/tensorflow-tf-summary-text-and-linebreaks
+        #
+        self.accomulated_entries += "  \n"
+        self.accomulated_entries += log_entry.replace("\n", "  \n")
+
         self.summary_writer.add_text(
             tag=self.title,
-            text_string=log_entry
+            text_string=self.accomulated_entries,
+            global_step=self.global_step
         )
 
 

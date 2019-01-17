@@ -5,7 +5,7 @@ from experiment import MLflowExperiment
 from experiment import TensorboardXExperiment
 import logging
 import mlflow
-from traitlets import Enum, Float, Int
+from traitlets import Enum, Float, Int, Unicode
 import time
 
 try:
@@ -15,6 +15,9 @@ except ImportError:
 
 
 class Main(MLflowExperiment, TensorboardXExperiment):
+
+    description = Unicode("Demonstration of using Tensorboard and MLflow logging.")
+
     #
     # Parameters of experiment
     #

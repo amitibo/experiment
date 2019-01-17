@@ -61,15 +61,19 @@ def ensure_dir_exists(path, mode=0o777):
 
 
 class Experiment(Application):
-    """A singleton experiment with full configuration support."""
+    """An experiment with CLI configuration support."""
+
+    description = Unicode(u"An experiment with CLI configuration support.")
 
     name = Unicode(Path(sys.argv[0]).stem)
 
     log_level = Enum((0, 10, 20, 30, 40, 50, 'DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL'),
-                    default_value=logging.INFO,
-                    help="Set the log level by value or name.").tag(config=True)
+                     config=True,
+                     default_value=logging.INFO,
+                     help="Set the log level by value or name.")
 
-    strict_git = Bool(True, config=True, help="Require commit of all changes.")
+    strict_git = Bool(False, config=True,
+                      help="Force (by fail running) that all code changes are committed before execution.")
 
     results_path = Unicode(help="Base path for experiment results.")
 
@@ -89,17 +93,15 @@ class Experiment(Application):
     # Configuration loading and saving.
     #
     generate_config = Bool(True, config=True, help="Generate config file.")
-    config_file_name = Unicode(config=True, help="Specify a config file to save.")
 
-    def _config_file_name_default(self):
-        return u'config.py'
+    config_file_name = Unicode("config.py", config=True, help="Specify a config file to save.")
 
     config_file = Unicode(config=True, help="Full path of a config file to load.")
 
     #
     # Logic
     #
-    cache = Dict(help="Container for storing results of different parts of the experiment.")
+    cache = Dict(help="Container for storing results across different parts of the experiment.")
 
     def load_config_file(self, suppress_errors=True):
         """Load the config file.
@@ -158,12 +160,18 @@ class Experiment(Application):
             lines.append('')
         return '\n'.join(lines)
 
-    def generate_config_file(self):
+    def generate_config_file(self, own=False):
         """generate default config file from Configurables"""
 
         lines = ["# Configuration file for %s." % self.name]
         lines.append('')
-        for cls in self._classes_in_config_sample():
+
+        if own:
+            classes = [self.__class__]
+        else:
+            classes = self._classes_in_config_sample()
+
+        for cls in classes:
             lines.append(self.class_config_section(cls))
 
         return '\n'.join(lines)
@@ -187,6 +195,8 @@ class Experiment(Application):
 
     def create_aliases(self):
         """Flatten all class traits using aliasses."""
+
+        self.aliases["strict_git"] = "Experiment.strict_git"
 
         cls = self.__class__
         for k, trait in sorted(cls.class_own_traits(config=True).items()):
@@ -243,12 +253,13 @@ class MLflowExperiment(Experiment):
         * MLFLOW_SERVER - URL:PORT of mlflow server.
     """
 
+    description = Unicode(u"An experiment with MLflow configuration support.")
+
     mlflow_server = Unicode(config=True, help="default mlflow server.")
 
     def _mlflow_server_default(self):
-        mlflow_server = os.environ.get("MLFLOW_SERVER", 'http://localhost:5000')
 
-        return mlflow_server
+        return os.environ.get("MLFLOW_SERVER", 'http://localhost:5000')
 
     def start(self):
         """Start the whole thing"""
@@ -275,7 +286,7 @@ class MLflowExperiment(Experiment):
             mlflow.log_param("results_path", self.results_path)
 
             cls = self.__class__
-            for k, trait in sorted(cls.class_traits(config=True).items()):
+            for k, trait in sorted(cls.class_own_traits(config=True).items()):
                 mlflow.log_param(trait.name, repr(trait.get(self)))
 
             self.run()
@@ -293,6 +304,8 @@ class VisdomExperiment(Experiment):
         * VISDOM_USERNAME - User name to use for logging to the visdom server (optional).
         * VISDOM_PASSWORD - Password to use for loffing to the visdom server (optional).
     """
+
+    description = Unicode(u"An experiment with Visdom configuration support.")
 
     visdom_server = Unicode(config=True, help="default visdom server.")
 
@@ -346,7 +359,7 @@ class VisdomExperiment(Experiment):
         #
         # Setup logging.
         #
-        config_text = self.generate_config_file()
+        config_text = self.generate_config_file(own=True)
         write_conf(self.visdom_env, text=config_text)
         self.custom_log_handlers.append(VisdomLogHandler(self.visdom_env, title="Logging"))
 
@@ -366,6 +379,8 @@ class TensorboardXExperiment(Experiment):
         * TENSORBOARD_BASE_DIR - Base path for storing log summaries (optional).
           Defaults to `/tmp/tensorboard`.
     """
+
+    description = Unicode(u"An experiment with TensorboardX configuration support.")
 
     tb_log_dir = Unicode(help="Path where to store the tensorboard logs.")
 
@@ -409,7 +424,7 @@ class TensorboardXExperiment(Experiment):
         #
         # Setup logging.
         #
-        config_text = self.generate_config_file()
+        config_text = self.generate_config_file(own=True)
         write_conf(self.summary_writer, text=config_text)
         self.custom_log_handlers.append(TensorBoardXLogHandler(self.summary_writer, title="Logging"))
 
