@@ -253,12 +253,12 @@ def monitor_gpu(env : str, gpu_index : int=None, xtick_size : int=100) -> thread
         gpu_index (int): The GPU to monitor.
     """
 
-    import CCC.monitor as mon
+    from .monitor import gpu_info, GPUMonitor
 
     if gpu_index is None:
         gpu_index = int(os.environ["CUDA_VISIBLE_DEVICES"])
 
-    desc, total = mon.gpu_info(gpu_index)
+    desc, total = gpu_info(gpu_index)
     title = "{} ({}G)".format(desc, total >> 10)
     win = Window(env=env, xlabel="time [s]", ylabel="percent [%]", title=title)
 
@@ -272,7 +272,7 @@ def monitor_gpu(env : str, gpu_index : int=None, xtick_size : int=100) -> thread
         mem_plot.append(x=dt, y=int(mem_used / total * 100), opts=dict(xtickmin=xtickmin, xtickmax=xtickmax))
         util_plot.append(x=dt, y=gpu_util, opts=dict(xtickmin=xtickmin, xtickmax=xtickmax))
 
-    sm = mon.GPUMonitor(gpu_index, cb)
+    sm = GPUMonitor(gpu_index, cb)
     sm.start()
 
     return sm

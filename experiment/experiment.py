@@ -75,13 +75,26 @@ class Experiment(Application):
     strict_git = Bool(False, config=True,
                       help="Force (by fail running) that all code changes are committed before execution.")
 
+    results_path_format = Unicode(help="Format of the results path. Default:"
+                                       " '{base_path}/{script_name}/{git}/{jobid}/{date}_{time}'")
+
+    def _results_path_format_default(self):
+
+        #
+        # TODO: Check if overwritten by sub class.
+        #
+        return os.environ.get(
+            "RESULTS_PATH_FORMAT",
+            "{base_path}/{file_name}/{git}/{jobid}/{date}_{time}"
+        )
+
     results_path = Unicode(help="Base path for experiment results.")
 
     def _results_path_default(self):
 
         results_base_path = os.environ.get("RESULTS_BASE", "/tmp/results")
-        results_base_path = os.path.join(results_base_path, self.name)
         results_path = createResultFolder(
+            results_path_format=self.results_path_format,
             base_path=results_base_path,
             strict_git=self.strict_git,
             time_struct=self.exp_time

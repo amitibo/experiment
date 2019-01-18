@@ -89,12 +89,12 @@ def monitor_gpu(
         gpu_index (int): The GPU to monitor.
     """
 
-    import CCC.monitor as mon
+    from .monitor import gpu_info, GPUMonitor
 
     if gpu_index is None:
         gpu_index = int(os.environ["CUDA_VISIBLE_DEVICES"])
 
-    desc, total = mon.gpu_info(gpu_index)
+    desc, total = gpu_info(gpu_index)
     title = desc.replace(' ', '_')
 
     def cb(dt, mem_used, mem_total, gpu_util):
@@ -111,7 +111,7 @@ def monitor_gpu(
             global_step=dt
         )
 
-    sm = mon.GPUMonitor(gpu_index, cb)
+    sm = GPUMonitor(gpu_index, cb)
     sm.start()
 
     return sm

@@ -15,6 +15,8 @@ class Main(Experiment):
     #
     description = Unicode("Basic experiment.")
 
+    results_path_format = Unicode("{base_path}/{script_name}/{date}_{time}")
+
     #
     # Parameters of experiment
     #

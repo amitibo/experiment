@@ -3,6 +3,7 @@
 import json
 import logging
 import os
+from pathlib import Path
 import subprocess as sbp
 import sys
 import time
@@ -152,13 +153,9 @@ def getJOBID():
 
 
 def createResultFolder(
-    results_folder: str=None,
-    base_path: str=None,
+    results_path_format: str,
+    base_path: str="/tmp/results",
     params: list=None,
-    diff_file: bool=True,
-    use_timestamp: bool=True,
-    use_jobid: bool=True,
-    postfix: str=None,
     strict_git: bool=False,
     time_struct: time.struct_time=None
 ):
@@ -169,15 +166,12 @@ def createResultFolder(
     the git version and the working copy at the time of run.
 
     Args:
-        results_folder (Optional[str]): Results folder. Useful when results
-           folder exists and only storing of params is needed.
+        results_path_format (str): Format of results folder.
+            Possible vars: base_path, script_name, git, date, time
+            For example: "{base_path}/{script_name}/{git}/{jobid}/{date}_{time}"
         base_path (optional[str]): Root name of the results folder.
         params (optional[list]): List of parameters of the run. Will be saved
-        as txt file.
-        diff_file (optional[bool]): Whether to save the diff log.
-        use_timestamp (optional[bool]): Whether to add a timestamp to the path.
-        use_jobid (optional[bool]): Whether to add a the jobid to the path.
-        postfix (optional[str]): Last subfolder.
+            as txt file.
         strict_git (optional[bool]): Assert that all code changes are committed.
         time_struct (optional[time.struct_time]): Use a specific time for timestamp.
 
@@ -187,47 +181,22 @@ def createResultFolder(
     """
 
     try:
-        version, diff = getGitInfo(strict=strict_git)
+        git_version, diff = getGitInfo(strict=strict_git)
     except:
-        version, diff = "no_gitinfo", b""
+        git_version, diff = "no_gitinfo", b""
 
-    if results_folder is None:
-        #
-        # Get the jobid.
-        #
-        jobid = getJOBID()
-        if time_struct is None:
-            time_struct = time.localtime()
-        timestamp = time.strftime('%y%m%d_%H%M%S', time_struct)
+    if time_struct is None:
+        time_struct = time.localtime()
 
-        if base_path is None:
-            try:
-                STORAGE_BASE = os.environ['STORAGE_BASE']
-            except Exception:
-                raise Exception(
-                    'Failed to find find STORAGE_BASE environment variable'
-                )
-
-            RESULTS_HOME = os.path.join(STORAGE_BASE, 'results')
-
-            import __main__
-            base_path = os.path.join(
-                RESULTS_HOME,
-                os.path.split(__main__.__file__)[1]
-            )
-
-        results_folder_parts = [base_path, version]
-
-        if use_jobid:
-            results_folder_parts.append(jobid)
-
-        if use_timestamp:
-            results_folder_parts.append(timestamp)
-
-        if postfix is not None:
-            results_folder_parts.append(postfix)
-
-        results_folder = os.path.join(*results_folder_parts)
+    results_folder_parts = {
+        "base_path": base_path,
+        "script_name": Path(sys.argv[0]).stem,
+        "git": git_version,
+        "jobid": getJOBID(),
+        "date": time.strftime('%y%m%d', time_struct),
+        "time": time.strftime('%H%M%S', time_struct),
+    }
+    results_folder = results_path_format.format(**results_folder_parts)
 
     safe_mkdirs(results_folder)
 
@@ -248,7 +217,7 @@ def createResultFolder(
     #
     # Create a diff file.
     #
-    if diff_file and diff is not None:
+    if diff is not None:
         with open(os.path.join(results_folder, 'git_diff.txt'), 'wb') as f:
             f.write(diff)
 
