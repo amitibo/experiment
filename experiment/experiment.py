@@ -85,7 +85,7 @@ class Experiment(Application):
         #
         return os.environ.get(
             "RESULTS_PATH_FORMAT",
-            "{base_path}/{file_name}/{git}/{jobid}/{date}_{time}"
+            "{base_path}/{script_name}/{git}/{jobid}/{date}_{time}"
         )
 
     results_path = Unicode(help="Base path for experiment results.")
