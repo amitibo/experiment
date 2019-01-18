@@ -80,9 +80,6 @@ class Experiment(Application):
 
     def _results_path_format_default(self):
 
-        #
-        # TODO: Check if overwritten by sub class.
-        #
         return os.environ.get(
             "RESULTS_PATH_FORMAT",
             "{base_path}/{script_name}/{git}/{jobid}/{date}_{time}"

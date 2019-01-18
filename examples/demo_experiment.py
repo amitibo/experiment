@@ -15,6 +15,9 @@ class Main(Experiment):
     #
     description = Unicode("Basic experiment.")
 
+    #
+    # Overwrite results path format. Supported vars: base_path, script_name, git, date, time
+    #
     results_path_format = Unicode("{base_path}/{script_name}/{date}_{time}")
 
     #
