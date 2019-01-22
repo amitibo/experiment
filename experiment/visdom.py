@@ -1,8 +1,10 @@
+from collections import OrderedDict
 import logging
 import numpy as np
 import os
 import pprint
 import threading
+from traitlets import HasTraits, Bool, Enum, Float, Int, Unicode
 from typing import List, Tuple, Union
 import visdom
 
@@ -285,32 +287,65 @@ class ParametersControlWindow(Window):
         env (string): The visdom environment to log to.
     """
 
+    param_type_map = {
+        Bool: "checkbox",
+        Float: 'number',
+        Int: 'number',
+        Enum: 'select',
+        Unicode: 'text'
+    }
+
+    param_cast_map = {
+        Bool: bool,
+        Float: float,
+        Int: int,
+        Enum: str,
+        Unicode: str
+    }
+
     def _form_properties(self):
+        """Create a (udpated) list of properties from the params_object."""
+
         properties = []
-        for param in self.parameters:
+        for param_name in self.parameters:
+            trait = self.params_object.class_traits()[param_name]
+            param_type = self.param_type_map[type(trait)]
+
+            if param_type == Enum:
+                raise NotImplementedError('Parameters of type Enum are not yet implemented.')
+
             properties.append(
-                {'type': 'number', 'name': param.name, 'value': str(param.value)}
+                {'type': param_type, 'name': param_name, 'value': str(trait.get(self.params_object))}
             )
+
         return properties
 
-    def _property_updated(self, new_value: float):
+    def _property_updated(self, change: dict):
         _visdom.properties(self._form_properties(), win=self._win, env=self._env)
 
     def _properties_callback(self, event):
         if event['event_type'] == 'PropertyUpdate':
             prop_id = event['propertyId']
             new_value = event['value']
-            self.parameters[prop_id].value = new_value
 
-    def register_parameters(self, parameters: Union[List, Tuple]):
+            trait = self.parameters.items()[prop_id][1]
+            trait.set(self.params_object, self.param_cast_map[type(trait)](new_value))
+
+    def register_parameters(self, params_object: HasTraits):
         """Register parameters for controlling in the window.
 
         Args:
-            parameters (list): List of Parameters to control.
+            params_object (HasTraits): The (HasTraits) object for which to create the properties window.
+                The properties will be created only for traits with the tag "parameter".
         """
-        self.parameters = parameters
-        for param in self.parameters:
-            param._callbacks.append(self._property_updated)
+
+        self.params_object = params_object
+        self.parameters = OrderedDict(self.params_object.class_own_traits(parameter=True))
+
+        self.params_object.observe(
+            self._property_updated,
+            list(self.parameters)
+        )
 
         self._win = _visdom.properties(self._form_properties(), env=self._env)
         _visdom.register_event_handler(
@@ -329,16 +364,17 @@ class ParametersViewWindow(Window):
         title (string): Title of the plot.
         showlegend (bool): Whether to show a legend.
     """
-    def register_parameters(self, parameters: Union[List, Tuple]):
+    def register_parameters(self, params_object: HasTraits):
         """Register parameters for viewing in the window.
 
         Args:
-            parameters (list): List of Parameter objects to view.
+            params_object (HasTraits): The (HasTraits) object for which to create the view window.
+                The view will be created only for traits with the tag "parameter".
         """
-        self.parameters = parameters
-        self.parameters_lines = []
-        for param in self.parameters:
-            self.parameters_lines.append(Line(param.name, window=self))
+        self.params_object = params_object
+        self.parameters = OrderedDict(self.params_object.class_own_traits(parameter=True))
+
+        self.parameters_lines = [Line(param_name, window=self) for param_name in self.parameters]
 
     def update(self, x: float):
         """Update the values of the parameters on the view.
@@ -346,15 +382,16 @@ class ParametersViewWindow(Window):
         Args:
             x (float): x value of graph.
         """
-        for param, param_line in zip(self.parameters, self.parameters_lines):
+
+        for param_name, param_line in zip(self.parameters, self.parameters_lines):
             param_line.append(
                 x=x,
-                y=param.value
+                y=getattr(self.params_object, param_name)
             )
 
 
 def create_parameters_windows(
-    parameters: Union[List, Tuple],
+    params_object: HasTraits,
     env: str,
     xlabel: str="iteration",
     ylabel: str="value",
@@ -363,6 +400,8 @@ def create_parameters_windows(
     """Create control and view windows for parameters
 
     Args:
+        params_object (HasTraits): The (HasTraits) object for which to create the properties window.
+            The properties will be created only for traits with the tag "parameter".
         env (string): The visdom environment to log to.
         xlabel (string): xlabel of plot.
         ylabel (string): ylabel of plot.
@@ -372,12 +411,15 @@ def create_parameters_windows(
     #
     # Create the properties control window
     #
-    params_control_win = ParametersControlWindow(env)
-    params_control_win.register_parameters(parameters)
+    params_control_win = ParametersControlWindow(env, title=title)
+    params_control_win.register_parameters(params_object)
 
+    #
+    # Create the view window.
+    #
     params_view_win = ParametersViewWindow(
         env, xlabel=xlabel, ylabel=ylabel, title=title, showlegend=showlegend
     )
-    params_view_win.register_parameters(parameters)
+    params_view_win.register_parameters(params_object)
 
     return params_control_win, params_view_win

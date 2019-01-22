@@ -36,7 +36,7 @@ import sys
 import time
 
 from ipython_genutils.text import wrap_paragraphs
-from traitlets.config.application import Application, catch_config_error
+from traitlets.config.application import Application, catch_config_error, Configurable
 from traitlets.config.loader import ConfigFileNotFound
 from traitlets import Bool, Dict, Enum, Instance, List, Unicode
 
@@ -119,34 +119,18 @@ class Experiment(Application):
     #
     cache = Dict(help="Container for storing results across different parts of the experiment.")
 
-    def load_config_file(self, suppress_errors=True):
-        """Load the config file.
+    def class_config_section(self, cls, classes=None):
+        """Get the config section for this class.
+        Parameters
+        ----------
+        classes: list, optional
+            The list of other classes in the config file.
+            Used to reduce redundant information.
 
-        By default, errors in loading config are handled, and a warning
-        printed on screen. For testing, the suppress_errors option is set
-        to False, so errors will make tests fail.
+        Note:
+            I overwrite this function in order to have the configuration in "config.py"
+            show the actual configuration used and have it non commented.
         """
-        if self.config_file:
-            path, config_file_name = os.path.split(self.config_file)
-        else:
-            return
-
-        try:
-            super(Experiment, self).load_config_file(
-                config_file_name,
-                path=path
-            )
-        except ConfigFileNotFound:
-            self.log.debug("Config file not found, skipping: %s", config_file_name)
-        except Exception:
-            # For testing purposes.
-            if not suppress_errors:
-                raise
-            self.log.warn("Error loading config file: %s" %
-                          config_file_name, exc_info=True)
-
-    def class_config_section(self, cls):
-        """Get the config class config section"""
 
         def c(s):
             """return a commented, wrapped block."""
@@ -156,9 +140,13 @@ class Experiment(Application):
 
         # section header
         breaker = '#' + '-' * 78
-        parent_classes = ','.join(p.__name__ for p in cls.__bases__)
+        parent_classes = ', '.join(
+            p.__name__ for p in cls.__bases__
+            if issubclass(p, Configurable)
+        )
+
         s = "# %s(%s) configuration" % (cls.__name__, parent_classes)
-        lines = [breaker, s, breaker, '']
+        lines = [breaker, s, breaker]
         # get the description trait
         desc = cls.class_traits().get('description')
         if desc:
@@ -171,39 +159,53 @@ class Experiment(Application):
             lines.append('')
 
         for name, trait in sorted(cls.class_own_traits(config=True).items()):
-            lines.append(c(trait.help))
+            default_repr = trait.default_value_repr()
+
+            if classes:
+                defining_class = cls._defining_class(trait, classes)
+            else:
+                defining_class = cls
+            if defining_class is cls:
+                # cls owns the trait, show full help
+                if trait.help:
+                    lines.append(c(trait.help))
+                if 'Enum' in type(trait).__name__:
+                    # include Enum choices
+                    lines.append('#  Choices: %s' % trait.info())
+                lines.append('###  (default: %s)' % default_repr)
+            else:
+                # Trait appears multiple times and isn't defined here.
+                # Truncate help to first line + "See also Original.trait"
+                if trait.help:
+                    lines.append(c(trait.help.split('\n', 1)[0]))
+                lines.append('###  See also: %s.%s' % (defining_class.__name__, name))
+
             lines.append('c.%s.%s = %s' % (cls.__name__, name, repr(trait.get(self))))
             lines.append('')
         return '\n'.join(lines)
 
-    def generate_config_file(self, own=False):
+    def generate_config_file(self, classes=None):
         """generate default config file from Configurables"""
-
         lines = ["# Configuration file for %s." % self.name]
         lines.append('')
-
-        if own:
-            classes = [self.__class__]
-        else:
-            classes = self._classes_in_config_sample()
-
-        for cls in classes:
-            lines.append(self.class_config_section(cls))
-
+        classes = self.classes if classes is None else classes
+        config_classes = list(self._classes_with_config_traits(classes))
+        for cls in config_classes:
+            lines.append(self.class_config_section(cls, config_classes))
         return '\n'.join(lines)
-
-    def exit(self, exit_status=0):
-        self.log.debug("Exiting application: %s" % self.name)
-        sys.exit(exit_status)
 
     def write_config(self):
         """Write our config to a .py config file"""
 
-        config_file = os.path.join(self.results_path, Path(self.config_file_name).stem + '.py')
+        config_file = os.path.join(
+            self.results_path,
+            Path(self.config_file_name).stem + '.py'
+        )
 
         config_text = self.generate_config_file()
         if isinstance(config_text, bytes):
             config_text = config_text.decode('utf8')
+
         print("Writing default config to: %s" % config_file)
         ensure_dir_exists(os.path.abspath(os.path.dirname(config_file)), 0o700)
         with open(config_file, mode='w') as f:
@@ -214,28 +216,34 @@ class Experiment(Application):
 
         self.aliases["strict_git"] = "Experiment.strict_git"
 
+        self.aliases["config_file"] = "Experiment.config_file"
+
         cls = self.__class__
         for k, trait in sorted(cls.class_own_traits(config=True).items()):
             self.aliases[trait.name] = ("%s.%s" % (cls.__name__, trait.name))
 
     @catch_config_error
     def initialize(self, argv=None):
-        # don't hook up crash handler before parsing command-line
-        if argv is None:
-            argv = sys.argv[1:]
 
         self.create_aliases()
 
         self.parse_command_line(argv)
-        cl_config = deepcopy(self.config)
-        self.load_config_file()
-        # enforce cl-opts override configfile opts:
-        self.update_config(cl_config)
+
+        if self.config_file:
+            path, config_file_name = os.path.split(self.config_file)
+            self.load_config_file(
+                config_file_name,
+                path=path
+            )
 
     def _setup_logging(self):
         """Setup logging of experiment."""
 
-        setupLogging(self.results_path, log_level=self.log_level, custom_handlers=self.custom_log_handlers)
+        setupLogging(
+            self.results_path,
+            log_level=self.log_level,
+            custom_handlers=self.custom_log_handlers
+        )
 
         logging.info("Created results path: {}".format(self.results_path))
 
@@ -375,7 +383,7 @@ class VisdomExperiment(Experiment):
         #
         # Setup logging.
         #
-        config_text = self.generate_config_file(own=True)
+        config_text = self.generate_config_file(classes=[self.__class__])
         write_conf(self.visdom_env, text=config_text)
         self.custom_log_handlers.append(VisdomLogHandler(self.visdom_env, title="Logging"))
 
@@ -440,7 +448,7 @@ class TensorboardXExperiment(Experiment):
         #
         # Setup logging.
         #
-        config_text = self.generate_config_file(own=True)
+        config_text = self.generate_config_file(classes=[self.__class__])
         write_conf(self.summary_writer, text=config_text)
         self.custom_log_handlers.append(TensorBoardXLogHandler(self.summary_writer, title="Logging"))
 
