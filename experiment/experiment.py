@@ -353,6 +353,10 @@ class VisdomExperiment(Experiment):
 
     visdom_env = Unicode(help="Name of Visdom environment where the experiment is logged.")
 
+    visdom_params_win = Instance(
+        name="visdom_params_win", klass=object,
+        help="Visdom window logging experiment parameters.")
+
     def _visdom_env_default(self):
 
         visdom_env = "{}_{}-{}".format(
@@ -369,7 +373,7 @@ class VisdomExperiment(Experiment):
         from .visdom import monitor_gpu
         from .visdom import write_conf
         from .visdom import VisdomLogHandler
-
+        from .visdom import create_parameters_windows
         #
         # The following is just for initiating the connection with the visdom server.
         #
@@ -379,6 +383,15 @@ class VisdomExperiment(Experiment):
         # Monitor GPU.
         #
         monitor_gpu(self.visdom_env)
+
+        #
+        # Create a properties window for paramters.
+        #
+        if len(self.class_own_traits(parameter=True)) > 0:
+            _, self.visdom_params_win = create_parameters_windows(
+                params_object=self,
+                env=self.visdom_env,
+            )
 
         #
         # Setup logging.

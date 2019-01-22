@@ -40,15 +40,6 @@ class Main(MLflowExperiment, VisdomExperiment):
         win = Window(env=self.visdom_env, xlabel="epoch", ylabel="Loss", title="Loss")
         loss_plot = Line("util", win)
 
-        #
-        # Create a properties window
-        #
-        _, params_view_win = create_parameters_windows(
-            params_object=self,
-            env=self.visdom_env,
-            xlabel="iterations",
-        )
-
         loss = 100
         for i in trange(self.epochs):
             loss_plot.append(x=i, y=loss)
@@ -59,7 +50,7 @@ class Main(MLflowExperiment, VisdomExperiment):
             #
             # Update the properties view window.
             #
-            params_view_win.update(x=i)
+            self.visdom_params_win.update(x=i)
 
             time.sleep(.5)
 
