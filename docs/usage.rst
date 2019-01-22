@@ -157,7 +157,11 @@ used to config the connection). A unique `visdom` ``environemnt`` is created per
 saved as ``text`` windows. A separate window is created for monitoring GPU use.
 The `experiment` package also includes ``experiment.visdom.Line`` and ``experiment.visdom.Window`` to help in
 using `visdom`.  It is also possible to use both `mlflow` and `visdom`. See
-``examples/demo_mlflow_experiment.py`` for a demonstration of using `visdom` and `mlflow` with `experiment`.
+``examples/demo_visdom_experiment.py`` for a demonstration of using `visdom` and `mlflow` with `experiment`.
+
+The ``experiment.visdom`` module includes also support for `visdom` properties_ window. See
+``examples/demo_visdom_experiment.py`` and the documentation.
+
 
 .. image:: images/visdom_logs.JPG
    :width: 600px
@@ -192,3 +196,4 @@ for a demonstration of using `tensorboard` and `mlflow` with `experiment`.
 .. _visdom: https://github.com/facebookresearch/visdom
 .. _Tensorboard: https://www.tensorflow.org/guide/summaries_and_tensorboard
 .. _TensorboardX : https://github.com/lanpa/tensorboardX
+.. _properties: https://github.com/facebookresearch/visdom#visproperties

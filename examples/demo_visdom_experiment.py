@@ -3,7 +3,7 @@ This demo shows how to use the `experiment` package to log both to `Visdom` and 
 """
 from experiment import MLflowExperiment
 from experiment import VisdomExperiment
-from experiment.visdom import Line, Window
+from experiment.visdom import create_parameters_windows, Line, Window
 import logging
 import mlflow
 from traitlets import Enum, Float, Int, Unicode
@@ -25,7 +25,7 @@ class Main(MLflowExperiment, VisdomExperiment):
     # Parameters of experiment
     #
     epochs = Int(100, config=True, help="Number of epochs")
-    lr = Float(0.5, config=True, help="Learning rate of training")
+    lr = Float(0.5, config=True, help="Learning rate of training").tag(parameter=True)
     loss_type = Enum(("mse", "l1"), config=True, default_value="mse", help="Loss type.")
 
     def run(self):
@@ -40,12 +40,27 @@ class Main(MLflowExperiment, VisdomExperiment):
         win = Window(env=self.visdom_env, xlabel="epoch", ylabel="Loss", title="Loss")
         loss_plot = Line("util", win)
 
+        #
+        # Create a properties window
+        #
+        _, params_view_win = create_parameters_windows(
+            params_object=self,
+            env=self.visdom_env,
+            xlabel="iterations",
+        )
+
         loss = 100
         for i in trange(self.epochs):
             loss_plot.append(x=i, y=loss)
             mlflow.log_metric("loss", loss)
 
             loss = loss * self.lr
+
+            #
+            # Update the properties view window.
+            #
+            params_view_win.update(x=i)
+
             time.sleep(.5)
 
         logging.info("Experiment finished")

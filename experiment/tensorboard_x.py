@@ -89,6 +89,10 @@ def monitor_gpu(
         gpu_index (int): The GPU to monitor.
     """
 
+    if not "CUDA_VISIBLE_DEVICES" in os.environ:
+        logging.debug("CUDA not available. Not monitoring GPU.")
+        return
+
     from .monitor import gpu_info, GPUMonitor
 
     if gpu_index is None:

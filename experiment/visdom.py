@@ -255,6 +255,10 @@ def monitor_gpu(env : str, gpu_index : int=None, xtick_size : int=100) -> thread
         gpu_index (int): The GPU to monitor.
     """
 
+    if not "CUDA_VISIBLE_DEVICES" in os.environ:
+        logging.debug("CUDA not available. Not monitoring GPU.")
+        return
+
     from .monitor import gpu_info, GPUMonitor
 
     if gpu_index is None:
@@ -328,7 +332,7 @@ class ParametersControlWindow(Window):
             prop_id = event['propertyId']
             new_value = event['value']
 
-            trait = self.parameters.items()[prop_id][1]
+            trait = list(self.parameters.items())[prop_id][1]
             trait.set(self.params_object, self.param_cast_map[type(trait)](new_value))
 
     def register_parameters(self, params_object: HasTraits):
