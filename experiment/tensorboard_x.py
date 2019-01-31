@@ -15,6 +15,11 @@ class TensorBoardXLogHandler(logging.Handler):
     Args:
         summary_writer (tensorboard.SummaryWriter): The summarywriter to log to.
         title (string): Title/tag to write to.
+
+    Warning:
+        Currently text summary is not well suited for incremental logging (logging
+        to the same global_step creates lots of tensorboard truncation messages).
+        Therefore by default the `TensorboardXExperiment` doesn't use this handler.
     """
 
     def __init__(
@@ -23,7 +28,6 @@ class TensorBoardXLogHandler(logging.Handler):
         title="Logging",  # type: str
         *args, **kwds
     ):
-
         super(TensorBoardXLogHandler, self).__init__(*args, **kwds)
 
         self.summary_writer = summary_writer

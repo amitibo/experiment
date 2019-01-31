@@ -85,7 +85,7 @@ class Experiment(Application):
             "{base_path}/{script_name}/{git}/{jobid}/{date}_{time}"
         )
 
-    results_path = Unicode(help="Base path for experiment results.")
+    results_path = Unicode(config=True, help="Base path for experiment results.")
 
     def _results_path_default(self):
 
@@ -446,6 +446,8 @@ class TensorboardXExperiment(Experiment):
 
         return summary_writer
 
+    log_to_text = Bool(False, config=True, help="Whether to record logs as text summary.")
+
     def _setup_logging(self):
         """Setup logging of experiment."""
 
@@ -463,6 +465,8 @@ class TensorboardXExperiment(Experiment):
         #
         config_text = self.generate_config_file(classes=[self.__class__])
         write_conf(self.summary_writer, text=config_text)
-        self.custom_log_handlers.append(TensorBoardXLogHandler(self.summary_writer, title="Logging"))
+
+        if self.log_to_text:
+            self.custom_log_handlers.append(TensorBoardXLogHandler(self.summary_writer, title="Logging"))
 
         super(TensorboardXExperiment, self)._setup_logging()
