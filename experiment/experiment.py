@@ -85,7 +85,12 @@ class Experiment(Application):
             "{base_path}/{script_name}/{git}/{jobid}/{date}_{time}"
         )
 
-    results_path = Unicode(config=True, help="Base path for experiment results.")
+    #
+    # Note:
+    # The results_path is not a `config` member as it will be saved in the config file and later
+    # when loaded will oeverwrite the new results_path.
+    #
+    results_path = Unicode(help="Base path for experiment results.")
 
     def _results_path_default(self):
 
