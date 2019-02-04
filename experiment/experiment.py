@@ -224,7 +224,7 @@ class Experiment(Application):
         self.aliases["config_file"] = "Experiment.config_file"
 
         cls = self.__class__
-        for k, trait in sorted(cls.class_own_traits(config=True).items()):
+        for k, trait in sorted(cls.class_traits(config=True).items()):
             self.aliases[trait.name] = ("%s.%s" % (cls.__name__, trait.name))
 
     @catch_config_error
