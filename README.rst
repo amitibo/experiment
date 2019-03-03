@@ -25,7 +25,7 @@ It is based on the Traitlets_ package.
 
 * Free software: MIT license
 
-.. * Documentation: https://pages.github.ibm.com/AMITAID/experiment/
+.. * Documentation: https://pages.github.com/amitibo/experiment/
 
 
 TL;DR
@@ -97,4 +97,4 @@ This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypack
 .. _mlflow: https://mlflow.org/
 .. _visdom: https://github.com/facebookresearch/visdom
 .. _tensorboard: https://www.tensorflow.org/guide/summaries_and_tensorboard
-.. _examples: https://github.ibm.com/AMITAID/experiment/tree/master/examples
+.. _examples: https://github.com/amitibo/experiment/tree/master/examples

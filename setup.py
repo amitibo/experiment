@@ -19,7 +19,7 @@ test_requirements = ['pytest', ]
 
 setup(
     author="Amit Aides",
-    author_email='amitaid@il.ibm.com',
+    author_email='amiti.bo@gmail.com',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
@@ -40,7 +40,7 @@ setup(
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
-    url='https://github.ibm.com/AMITAID/experiment',
+    url='https://github.com/amitibo/experiment',
     version='0.2.0',
     zip_safe=False,
 )
