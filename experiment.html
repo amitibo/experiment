@@ -17,33 +17,35 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="History" href="history.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -164,7 +166,7 @@
 <dt id="experiment.experiment.Experiment">
 <em class="property">class </em><code class="descclassname">experiment.experiment.</code><code class="descname">Experiment</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/experiment.html#Experiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.experiment.Experiment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">traitlets.config.application.Application</span></code></p>
-<p>A singleton experiment with full configuration support.</p>
+<p>An experiment with CLI configuration support.</p>
 <dl class="attribute">
 <dt id="experiment.experiment.Experiment.cache">
 <code class="descname">cache</code><a class="headerlink" href="#experiment.experiment.Experiment.cache" title="Permalink to this definition">¶</a></dt>
@@ -173,8 +175,20 @@
 
 <dl class="method">
 <dt id="experiment.experiment.Experiment.class_config_section">
-<code class="descname">class_config_section</code><span class="sig-paren">(</span><em>cls</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/experiment.html#Experiment.class_config_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.experiment.Experiment.class_config_section" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the config class config section</p>
+<code class="descname">class_config_section</code><span class="sig-paren">(</span><em>cls</em>, <em>classes=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/experiment.html#Experiment.class_config_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.experiment.Experiment.class_config_section" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the config section for this class.
+:param classes: The list of other classes in the config file.</p>
+<blockquote>
+<div>Used to reduce redundant information.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>Note</strong> – I overwrite this function in order to have the configuration in “config.py”
+show the actual configuration used and have it non commented.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
@@ -201,10 +215,19 @@
 <dd><p>An instance of a Python list.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="experiment.experiment.Experiment.exit">
-<code class="descname">exit</code><span class="sig-paren">(</span><em>exit_status=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/experiment.html#Experiment.exit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.experiment.Experiment.exit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dl class="attribute">
+<dt id="experiment.experiment.Experiment.description">
+<code class="descname">description</code><a class="headerlink" href="#experiment.experiment.Experiment.description" title="Permalink to this definition">¶</a></dt>
+<dd><p>A trait for unicode strings.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="experiment.experiment.Experiment.exp_time">
+<code class="descname">exp_time</code><a class="headerlink" href="#experiment.experiment.Experiment.exp_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>A trait whose value must be an instance of a specified class.</p>
+<p>The value can also be an instance of a subclass of the specified class.</p>
+<p>Subclasses can declare default classes by overriding the klass attribute</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="experiment.experiment.Experiment.generate_config">
@@ -214,7 +237,7 @@
 
 <dl class="method">
 <dt id="experiment.experiment.Experiment.generate_config_file">
-<code class="descname">generate_config_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/experiment.html#Experiment.generate_config_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.experiment.Experiment.generate_config_file" title="Permalink to this definition">¶</a></dt>
+<code class="descname">generate_config_file</code><span class="sig-paren">(</span><em>classes=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/experiment.html#Experiment.generate_config_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.experiment.Experiment.generate_config_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>generate default config file from Configurables</p>
 </dd></dl>
 
@@ -223,15 +246,6 @@
 <code class="descname">initialize</code><span class="sig-paren">(</span><em>argv=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/experiment.html#Experiment.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.experiment.Experiment.initialize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Do the basic steps to configure me.</p>
 <p>Override in subclasses.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="experiment.experiment.Experiment.load_config_file">
-<code class="descname">load_config_file</code><span class="sig-paren">(</span><em>suppress_errors=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/experiment.html#Experiment.load_config_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.experiment.Experiment.load_config_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load the config file.</p>
-<p>By default, errors in loading config are handled, and a warning
-printed on screen. For testing, the suppress_errors option is set
-to False, so errors will make tests fail.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -249,6 +263,12 @@ to False, so errors will make tests fail.</p>
 <dl class="attribute">
 <dt id="experiment.experiment.Experiment.results_path">
 <code class="descname">results_path</code><a class="headerlink" href="#experiment.experiment.Experiment.results_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>A trait for unicode strings.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="experiment.experiment.Experiment.results_path_format">
+<code class="descname">results_path_format</code><a class="headerlink" href="#experiment.experiment.Experiment.results_path_format" title="Permalink to this definition">¶</a></dt>
 <dd><p>A trait for unicode strings.</p>
 </dd></dl>
 
@@ -282,7 +302,7 @@ to False, so errors will make tests fail.</p>
 <dl class="class">
 <dt id="experiment.experiment.MLflowExperiment">
 <em class="property">class </em><code class="descclassname">experiment.experiment.</code><code class="descname">MLflowExperiment</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/experiment.html#MLflowExperiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.experiment.MLflowExperiment" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="source/experiment.experiment.html#experiment.experiment.Experiment" title="experiment.experiment.Experiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">experiment.experiment.Experiment</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#experiment.experiment.Experiment" title="experiment.experiment.Experiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">experiment.experiment.Experiment</span></code></a></p>
 <p>A singleton experiment with support for <cite>mlflow</cite> logging.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -293,6 +313,12 @@ environment variable:</p>
 <li>MLFLOW_SERVER - URL:PORT of mlflow server.</li>
 </ul>
 </div>
+<dl class="attribute">
+<dt id="experiment.experiment.MLflowExperiment.description">
+<code class="descname">description</code><a class="headerlink" href="#experiment.experiment.MLflowExperiment.description" title="Permalink to this definition">¶</a></dt>
+<dd><p>A trait for unicode strings.</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="experiment.experiment.MLflowExperiment.mlflow_server">
 <code class="descname">mlflow_server</code><a class="headerlink" href="#experiment.experiment.MLflowExperiment.mlflow_server" title="Permalink to this definition">¶</a></dt>
@@ -310,7 +336,7 @@ environment variable:</p>
 <dl class="class">
 <dt id="experiment.experiment.VisdomExperiment">
 <em class="property">class </em><code class="descclassname">experiment.experiment.</code><code class="descname">VisdomExperiment</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/experiment.html#VisdomExperiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.experiment.VisdomExperiment" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="source/experiment.experiment.html#experiment.experiment.Experiment" title="experiment.experiment.Experiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">experiment.experiment.Experiment</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#experiment.experiment.Experiment" title="experiment.experiment.Experiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">experiment.experiment.Experiment</span></code></a></p>
 <p>A singleton experiment with support of <cite>Visdom</cite> logging.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -323,6 +349,12 @@ environment variables:</p>
 <li>VISDOM_PASSWORD - Password to use for loffing to the visdom server (optional).</li>
 </ul>
 </div>
+<dl class="attribute">
+<dt id="experiment.experiment.VisdomExperiment.description">
+<code class="descname">description</code><a class="headerlink" href="#experiment.experiment.VisdomExperiment.description" title="Permalink to this definition">¶</a></dt>
+<dd><p>A trait for unicode strings.</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="experiment.experiment.VisdomExperiment.vis">
 <code class="descname">vis</code><a class="headerlink" href="#experiment.experiment.VisdomExperiment.vis" title="Permalink to this definition">¶</a></dt>
@@ -338,6 +370,14 @@ environment variables:</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="experiment.experiment.VisdomExperiment.visdom_params_win">
+<code class="descname">visdom_params_win</code><a class="headerlink" href="#experiment.experiment.VisdomExperiment.visdom_params_win" title="Permalink to this definition">¶</a></dt>
+<dd><p>A trait whose value must be an instance of a specified class.</p>
+<p>The value can also be an instance of a subclass of the specified class.</p>
+<p>Subclasses can declare default classes by overriding the klass attribute</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="experiment.experiment.VisdomExperiment.visdom_server">
 <code class="descname">visdom_server</code><a class="headerlink" href="#experiment.experiment.VisdomExperiment.visdom_server" title="Permalink to this definition">¶</a></dt>
 <dd><p>A trait for unicode strings.</p>
@@ -348,7 +388,7 @@ environment variables:</p>
 <dl class="class">
 <dt id="experiment.experiment.TensorboardXExperiment">
 <em class="property">class </em><code class="descclassname">experiment.experiment.</code><code class="descname">TensorboardXExperiment</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/experiment.html#TensorboardXExperiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.experiment.TensorboardXExperiment" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="source/experiment.experiment.html#experiment.experiment.Experiment" title="experiment.experiment.Experiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">experiment.experiment.Experiment</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#experiment.experiment.Experiment" title="experiment.experiment.Experiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">experiment.experiment.Experiment</span></code></a></p>
 <p>A singleton experiment with support of <cite>TensorBoard</cite> logging.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -362,6 +402,18 @@ environment variable:</p>
 Defaults to <cite>/tmp/tensorboard</cite>.</li>
 </ul>
 </div>
+<dl class="attribute">
+<dt id="experiment.experiment.TensorboardXExperiment.description">
+<code class="descname">description</code><a class="headerlink" href="#experiment.experiment.TensorboardXExperiment.description" title="Permalink to this definition">¶</a></dt>
+<dd><p>A trait for unicode strings.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="experiment.experiment.TensorboardXExperiment.log_to_text">
+<code class="descname">log_to_text</code><a class="headerlink" href="#experiment.experiment.TensorboardXExperiment.log_to_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean (True, False) trait.</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="experiment.experiment.TensorboardXExperiment.summary_writer">
 <code class="descname">summary_writer</code><a class="headerlink" href="#experiment.experiment.TensorboardXExperiment.summary_writer" title="Permalink to this definition">¶</a></dt>
@@ -389,7 +441,7 @@ Defaults to <cite>/tmp/tensorboard</cite>.</li>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="history.html" class="btn btn-neutral" title="History" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="history.html" class="btn btn-neutral float-left" title="History" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -415,25 +467,16 @@ Defaults to <cite>/tmp/tensorboard</cite>.</li>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

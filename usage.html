@@ -17,34 +17,36 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Examples" href="examples.html" />
     <link rel="prev" title="Installation" href="installation.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -312,7 +314,9 @@ used to config the connection). A unique <cite>visdom</cite> <code class="docuti
 saved as <code class="docutils literal notranslate"><span class="pre">text</span></code> windows. A separate window is created for monitoring GPU use.
 The <cite>experiment</cite> package also includes <code class="docutils literal notranslate"><span class="pre">experiment.visdom.Line</span></code> and <code class="docutils literal notranslate"><span class="pre">experiment.visdom.Window</span></code> to help in
 using <cite>visdom</cite>.  It is also possible to use both <cite>mlflow</cite> and <cite>visdom</cite>. See
-<code class="docutils literal notranslate"><span class="pre">examples/demo_mlflow_experiment.py</span></code> for a demonstration of using <cite>visdom</cite> and <cite>mlflow</cite> with <cite>experiment</cite>.</p>
+<code class="docutils literal notranslate"><span class="pre">examples/demo_visdom_experiment.py</span></code> for a demonstration of using <cite>visdom</cite> and <cite>mlflow</cite> with <cite>experiment</cite>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">experiment.visdom</span></code> module includes also support for <cite>visdom</cite> <a class="reference external" href="https://github.com/facebookresearch/visdom#visproperties">properties</a> window. See
+<code class="docutils literal notranslate"><span class="pre">examples/demo_visdom_experiment.py</span></code> and the documentation.</p>
 <a class="reference internal image-reference" href="_images/visdom_logs.JPG"><img alt="example of visdom logs" class="align-center" src="_images/visdom_logs.JPG" style="width: 600px;" /></a>
 </div>
 <div class="section" id="integration-with-tensorboard">
@@ -339,7 +343,7 @@ for a demonstration of using <cite>tensorboard</cite> and <cite>mlflow</cite> wi
         <a href="examples.html" class="btn btn-neutral float-right" title="Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="installation.html" class="btn btn-neutral" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -365,25 +369,16 @@ for a demonstration of using <cite>tensorboard</cite> and <cite>mlflow</cite> wi
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
